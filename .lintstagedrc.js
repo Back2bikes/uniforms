@@ -1,6 +1,5 @@
 module.exports = {
   '**/*.css': ['stylelint'],
   '**/*.{js,ts,tsx}': ['eslint'],
-  '**/*.{json,md,mdx,yml}': ['prettier --check'],
-  '**/*.{ts,tsx}': () => 'npm run lint:types'
+  '**/*.{ts,tsx}': () => 'npm run lint:types',
 };

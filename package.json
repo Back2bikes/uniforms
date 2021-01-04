@@ -3,12 +3,14 @@
   "private": true,
   "scripts": {
     "build": "tsc --build --incremental tsconfig.build.json",
+    "dev": "tsc --build --incremental tsconfig.build.json -w",
     "clean": "tsc --build --clean tsconfig.build.json && rimraf coverage",
     "coverage": "jest --coverage",
     "install": "lerna bootstrap --hoist && npm run build",
     "lint": "npm run lint:code && npm run lint:text && npm run lint:types",
     "lint:code": "eslint --ext js,ts,tsx packages scripts website",
     "lint:text": "prettier --check '**/*.{json,md,mdx,yml}'",
+    "lint:fix": "prettier --fix '**/*.{json,md,mdx,yml}'",
     "lint:types": "npm run build",
     "prereset": "npm run clean",
     "pretest": "npm run lint",
@@ -78,5 +80,8 @@
   },
   "engines": {
     "npm": ">=5.0.0"
+  },
+  "devDependencies": {
+    "ts-node": "^9.1.1"
   }
 }

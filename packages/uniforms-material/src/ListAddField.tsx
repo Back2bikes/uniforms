@@ -1,5 +1,6 @@
+import Button, { ButtonProps } from '@material-ui/core/Button';
 import FormControl, { FormControlProps } from '@material-ui/core/FormControl';
-import IconButton, { IconButtonProps } from '@material-ui/core/IconButton';
+import AddIcon from '@material-ui/icons/Add';
 import cloneDeep from 'lodash/cloneDeep';
 import React, { ReactNode } from 'react';
 import {
@@ -12,24 +13,26 @@ import {
 
 export type ListAddFieldProps = FieldProps<
   unknown,
-  IconButtonProps,
+  ButtonProps,
   {
     fullWidth?: FormControlProps['fullWidth'];
     icon?: ReactNode;
     initialCount?: number;
     margin?: FormControlProps['margin'];
     variant?: FormControlProps['variant'];
+    text?: String;
   }
 >;
 
 function ListAdd({
   disabled,
-  fullWidth = true,
+  fullWidth = false,
   icon = '+',
   margin = 'dense',
   name,
   value,
   variant,
+  text,
   ...props
 }: ListAddFieldProps) {
   const nameParts = joinName(null, name);
@@ -45,15 +48,18 @@ function ListAdd({
 
   return (
     <FormControl fullWidth={fullWidth} margin={margin} variant={variant}>
-      <IconButton
+      <Button
+        variant="contained"
+        color="primary"
+        startIcon={icon}
         {...filterDOMProps(props)}
         disabled={!limitNotReached}
         onClick={() => {
           parent.onChange(parent.value!.concat([cloneDeep(value)]));
         }}
       >
-        {icon}
-      </IconButton>
+        {text}
+      </Button>
     </FormControl>
   );
 }

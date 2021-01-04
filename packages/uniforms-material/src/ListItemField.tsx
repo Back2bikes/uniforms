@@ -3,7 +3,7 @@ import React, { ReactNode } from 'react';
 import { connectField } from 'uniforms';
 
 import AutoField from './AutoField';
-import ListDelField from './ListDelField';
+import ListChipField from './ListChipField';
 
 export type ListItemFieldProps = {
   children?: ReactNode;
@@ -12,6 +12,9 @@ export type ListItemFieldProps = {
   divider?: ListItemProps['divider'];
   removeIcon?: ReactNode;
   value?: unknown;
+  index?: number;
+  chipText?: String;
+  removeText?: String;
 };
 
 function ListItem({
@@ -19,17 +22,21 @@ function ListItem({
   dense = true,
   disableGutters,
   divider,
-  removeIcon,
+  index = 0,
+  chipText,
 }: ListItemFieldProps) {
   return (
-    <ListItemMaterial
-      dense={dense}
-      disableGutters={disableGutters}
-      divider={divider}
-    >
-      {children}
-      <ListDelField name="" icon={removeIcon} />
-    </ListItemMaterial>
+    <div>
+      {chipText && <ListChipField name="" label={`${chipText} ${index + 1}`} />}
+
+      <ListItemMaterial
+        dense={dense}
+        disableGutters={disableGutters}
+        divider={divider}
+      >
+        {children}
+      </ListItemMaterial>
+    </div>
   );
 }
 

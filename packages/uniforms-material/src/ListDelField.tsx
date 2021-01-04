@@ -1,4 +1,5 @@
-import IconButton, { IconButtonProps } from '@material-ui/core/IconButton';
+import Button, { ButtonProps } from '@material-ui/core/Button';
+import DeleteIcon from '@material-ui/icons/Delete';
 import React, { ReactNode } from 'react';
 import {
   FieldProps,
@@ -10,11 +11,17 @@ import {
 
 export type ListDelFieldProps = FieldProps<
   unknown,
-  IconButtonProps,
-  { icon?: ReactNode }
+  ButtonProps,
+  { icon?: ReactNode; text?: String }
 >;
 
-function ListDel({ disabled, icon = '-', name, ...props }: ListDelFieldProps) {
+function ListDel({
+  disabled,
+  icon = <DeleteIcon />,
+  name,
+  text,
+  ...props
+}: ListDelFieldProps) {
   const nameParts = joinName(null, name);
   const nameIndex = +nameParts[nameParts.length - 1];
   const parentName = joinName(nameParts.slice(0, -1));
@@ -28,7 +35,11 @@ function ListDel({ disabled, icon = '-', name, ...props }: ListDelFieldProps) {
     !disabled && !(parent.minCount! >= parent.value!.length);
 
   return (
-    <IconButton
+    <Button
+      variant="contained"
+      size="small"
+      color="secondary"
+      startIcon={icon}
       {...filterDOMProps(props)}
       disabled={!limitNotReached}
       onClick={() => {
@@ -37,8 +48,8 @@ function ListDel({ disabled, icon = '-', name, ...props }: ListDelFieldProps) {
         parent.onChange(value);
       }}
     >
-      {icon}
-    </IconButton>
+      {text}
+    </Button>
   );
 }
 

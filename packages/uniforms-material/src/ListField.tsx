@@ -14,7 +14,15 @@ import ListItemField from './ListItemField';
 export type ListFieldProps = FieldProps<
   unknown[],
   ListProps,
-  { addIcon?: ReactNode; initialCount?: number; itemProps?: {} }
+  {
+    addIcon?: ReactNode;
+    removeIcon?: ReactNode;
+    initialCount?: number;
+    itemProps?: {};
+    chipText?: String;
+    addText?: String;
+    removeText?: String;
+  }
 >;
 
 function List({
@@ -24,6 +32,10 @@ function List({
   itemProps,
   label,
   name,
+  chipText,
+  addText,
+  removeText,
+  removeIcon,
   value,
   ...props
 }: ListFieldProps) {
@@ -44,13 +56,23 @@ function List({
               ? cloneElement(child, {
                   key: `${itemIndex}-${childIndex}`,
                   name: child.props.name?.replace('$', '' + itemIndex),
+                  index: itemIndex,
+                  chipText,
+                  removeText,
+                  removeIcon,
                   ...itemProps,
                 })
               : child,
           ),
         )}
       </ListMaterial>
-      <ListAddField icon={addIcon} initialCount={initialCount} name="$" />
+      <ListAddField
+        initialCount={initialCount}
+        name="$"
+        text={addText}
+        icon={addIcon}
+      />
+      <br />
     </>
   );
 }
