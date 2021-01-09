@@ -52,8 +52,8 @@ export default function AutoField(originalProps: AutoFieldProps) {
           component = TextField;
           break;
       }
-
-      invariant(component, 'Unsupported field type: %s', fieldType);
+      console.log('Field type', originalProps.name, fieldType);
+      invariant(component, 'Unsupported field  type: %s', fieldType);
     }
   }
 
