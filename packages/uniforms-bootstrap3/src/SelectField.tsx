@@ -5,10 +5,10 @@ import { connectField, HTMLFieldProps } from 'uniforms';
 
 import wrapField from './wrapField';
 
-const base64 =
-  typeof btoa !== 'undefined'
-    ? btoa
-    : (x: string) => Buffer.from(x).toString('base64');
+const base64: typeof btoa =
+  typeof btoa === 'undefined'
+    ? /* istanbul ignore next */ x => Buffer.from(x).toString('base64')
+    : btoa;
 const escape = (x: string) => base64(encodeURIComponent(x)).replace(/=+$/, '');
 
 export type SelectFieldProps = HTMLFieldProps<
@@ -21,18 +21,16 @@ export type SelectFieldProps = HTMLFieldProps<
     inline?: boolean;
     inputClassName?: string;
     inputRef?: Ref<HTMLSelectElement>;
-    transform?(value: string): string;
+    transform?: (value: string) => string;
   }
 >;
 
 function Select({
   allowedValues,
   checkboxes,
-  className,
   disableItem,
   disabled,
   error,
-  errorMessage,
   fieldType,
   id,
   inline,
@@ -42,15 +40,16 @@ function Select({
   name,
   onChange,
   placeholder,
+  readOnly,
   required,
-  showInlineError,
   transform,
   value,
   ...props
 }: SelectFieldProps) {
+  const multiple = fieldType === Array;
   return wrapField(
     { ...props, id, label },
-    checkboxes || fieldType === Array ? (
+    checkboxes ? (
       allowedValues?.map(item => (
         <div
           key={item}
@@ -67,9 +66,11 @@ function Select({
               disabled={disableItem?.(item) || disabled}
               id={`${id}-${escape(item)}`}
               name={name}
-              onChange={() =>
-                onChange(fieldType === Array ? xor([item], value) : item)
-              }
+              onChange={() => {
+                if (!readOnly) {
+                  onChange(fieldType === Array ? xor([item], value) : item);
+                }
+              }}
               type="checkbox"
             />
             {transform ? transform(item) : item}
@@ -83,14 +84,23 @@ function Select({
         })}
         disabled={disabled}
         id={id}
+        multiple={multiple}
         name={name}
-        onChange={event =>
-          onChange(event.target.value !== '' ? event.target.value : undefined)
-        }
+        onChange={event => {
+          if (!readOnly) {
+            const item = event.target.value;
+            if (multiple) {
+              const clear = event.target.selectedIndex === -1;
+              onChange(clear ? [] : xor([item], value));
+            } else {
+              onChange(item !== '' ? item : undefined);
+            }
+          }
+        }}
         ref={inputRef}
         value={value ?? ''}
       >
-        {(!!placeholder || !required || value === undefined) && (
+        {(!!placeholder || !required || value === undefined) && !multiple && (
           <option value="" disabled={required} hidden={required}>
             {placeholder || label}
           </option>
@@ -106,4 +116,4 @@ function Select({
   );
 }
 
-export default connectField(Select, { kind: 'leaf' });
+export default connectField<SelectFieldProps>(Select, { kind: 'leaf' });

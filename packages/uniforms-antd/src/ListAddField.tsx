@@ -21,7 +21,9 @@ const defaultStyle = { width: '100%' };
 function ListAdd({
   disabled,
   icon = <PlusSquareOutlined />,
+  initialCount,
   name,
+  readOnly,
   size = 'small',
   style = defaultStyle,
   type = 'dashed',
@@ -30,11 +32,10 @@ function ListAdd({
 }: ListAddFieldProps) {
   const nameParts = joinName(null, name);
   const parentName = joinName(nameParts.slice(0, -1));
-  const parent = useField<{ maxCount?: number }, unknown[]>(
-    parentName,
-    {},
-    { absoluteName: true },
-  )[0];
+  const parent = useField<
+    { initialCount?: number; maxCount?: number },
+    unknown[]
+  >(parentName, { initialCount }, { absoluteName: true })[0];
 
   const limitNotReached =
     !disabled && !(parent.maxCount! <= parent.value!.length);
@@ -45,7 +46,9 @@ function ListAdd({
       disabled={!limitNotReached}
       icon={icon}
       onClick={() => {
-        parent.onChange(parent.value!.concat([cloneDeep(value)]));
+        if (!readOnly) {
+          parent.onChange(parent.value!.concat([cloneDeep(value)]));
+        }
       }}
       size={size}
       style={style}
@@ -54,4 +57,7 @@ function ListAdd({
   );
 }
 
-export default connectField(ListAdd, { initialValue: false, kind: 'leaf' });
+export default connectField<ListAddFieldProps>(ListAdd, {
+  initialValue: false,
+  kind: 'leaf',
+});

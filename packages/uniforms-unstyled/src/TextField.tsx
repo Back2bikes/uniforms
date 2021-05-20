@@ -16,6 +16,7 @@ function Text({
   name,
   onChange,
   placeholder,
+  readOnly,
   type,
   value,
   ...props
@@ -31,6 +32,7 @@ function Text({
         name={name}
         onChange={event => onChange(event.target.value)}
         placeholder={placeholder}
+        readOnly={readOnly}
         ref={inputRef}
         type={type}
         value={value ?? ''}
@@ -41,4 +43,4 @@ function Text({
 
 Text.defaultProps = { type: 'text' };
 
-export default connectField(Text, { kind: 'leaf' });
+export default connectField<TextFieldProps>(Text, { kind: 'leaf' });

@@ -1,12 +1,14 @@
 {
   "name": "uniforms-bridge-graphql",
-  "version": "3.0.0-rc.8",
+  "version": "3.5.1",
   "license": "MIT",
   "main": "es5/index.js",
   "module": "es6/index.js",
+  "sideEffects": false,
   "description": "GraphQL schema bridge for uniforms.",
   "repository": "https://github.com/vazco/uniforms/tree/master/packages/uniforms-bridge-graphql",
   "bugs": "https://github.com/vazco/uniforms/issues",
+  "funding": "https://github.com/vazco/uniforms?sponsor=1",
   "keywords": [
     "form",
     "forms",
@@ -27,7 +29,7 @@
     "graphql": "^15.0.0",
     "invariant": "^2.0.0",
     "lodash": "^4.0.0",
-    "tslib": "^1.10.0",
-    "uniforms": "^3.0.0-rc.8"
+    "tslib": "^2.2.0",
+    "uniforms": "^3.5.1"
   }
 }

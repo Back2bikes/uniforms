@@ -14,7 +14,7 @@ import ListItemField from './ListItemField';
 export type ListFieldProps = FieldProps<
   unknown[],
   ListProps,
-  { addIcon?: ReactNode; initialCount?: number; itemProps?: {} }
+  { addIcon?: ReactNode; initialCount?: number; itemProps?: object }
 >;
 
 function List({
@@ -23,7 +23,6 @@ function List({
   initialCount,
   itemProps,
   label,
-  name,
   value,
   ...props
 }: ListFieldProps) {
@@ -55,4 +54,4 @@ function List({
   );
 }
 
-export default connectField(List);
+export default connectField<ListFieldProps>(List);

@@ -1,9 +1,18 @@
+import IconButton from '@material-ui/core/IconButton';
 import ListSubheader from '@material-ui/core/ListSubheader';
+import { screen } from '@testing-library/react';
 import React from 'react';
 import { ListAddField, ListField, ListItemField } from 'uniforms-material';
+import { runListFieldTests } from 'uniforms/__suites__/ListField';
 
 import createContext from './_createContext';
 import mount from './_mount';
+
+describe('@RTL - ListField tests', () => {
+  runListFieldTests(ListField, {
+    addFieldLocator: () => screen.queryByText(/\+/),
+  });
+});
 
 test('<ListField> - works', () => {
   const element = <ListField name="x" />;
@@ -102,4 +111,27 @@ test('<ListField> - renders children with correct name (value)', () => {
 
   expect(wrapper.find(ListItemField).at(0).prop('name')).toBe('0');
   expect(wrapper.find(ListItemField).at(1).prop('name')).toBe('1');
+});
+
+test('<ListField> - renders proper number of optional values after add new value (with initialCount)', () => {
+  const element = (
+    <ListField name="x" initialCount={3} label="ListFieldLabel" />
+  );
+  const onChange = jest.fn();
+  const wrapper = mount(
+    element,
+    createContext(
+      { x: { type: Array, optional: true }, 'x.$': { type: String } },
+      { onChange },
+    ),
+  );
+  expect(
+    wrapper.find(ListAddField).find(IconButton).simulate('click'),
+  ).toBeTruthy();
+  expect(onChange).toHaveBeenNthCalledWith(1, 'x', [
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+  ]);
 });

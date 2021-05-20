@@ -2,7 +2,7 @@ import { HTMLProps, ReactNode, SyntheticEvent } from 'react';
 
 import { Bridge } from './Bridge';
 
-export type ChangedMap<T> = T extends {}
+export type ChangedMap<T> = T extends object
   ? { [P in keyof T]?: ChangedMap<T[P]> }
   : Record<string, void>;
 
@@ -12,25 +12,28 @@ export type Context<Model> = {
   error: any;
   model: DeepPartial<Model>;
   name: string[];
-  onChange(key: string, value?: any): void;
-  onSubmit(event?: SyntheticEvent): any | Promise<any>;
-  randomId(): string;
+  onChange: (key: string, value: any) => void;
+  onSubmit: (event?: SyntheticEvent) => any | Promise<any>;
+  randomId: () => string;
   schema: Bridge;
   state: {
     disabled: boolean;
     label: boolean;
     placeholder: boolean;
+    readOnly: boolean;
     showInlineError: boolean;
   };
   submitting: boolean;
+  submitted: boolean;
   validating: boolean;
 };
 
+/** @internal */
 export type DeepPartial<T> = {
-  [P in keyof T]?: T[P] extends {} ? DeepPartial<T[P]> : T[P];
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
 
-export type FieldProps<Value, Base, Extension = {}> = Override<
+export type FieldProps<Value, Base, Extension = object> = Override<
   Base,
   GuaranteedProps<Value> & Extension
 >;
@@ -49,13 +52,19 @@ export type GuaranteedProps<Value> = {
   id: string;
   label: ReactNode;
   name: string;
-  onChange(value?: Value | null, name?: string): void;
+  onChange: OnChange<Value | undefined>;
   placeholder: string;
+  readOnly: boolean;
   showInlineError: boolean;
   value?: Value;
 };
 
-export type HTMLFieldProps<Value, Element, Extension = {}> = FieldProps<
+type OnChange<Value> = {
+  (value: Value): void;
+  (value: any, name: string): void;
+};
+
+export type HTMLFieldProps<Value, Element, Extension = object> = FieldProps<
   Value,
   HTMLProps<Element>,
   Extension
@@ -63,9 +72,8 @@ export type HTMLFieldProps<Value, Element, Extension = {}> = FieldProps<
 
 export type ModelTransformMode = 'form' | 'submit' | 'validate';
 
+/** @internal */
 export type Override<T, U> = U & Omit<T, keyof U>;
-
-export type Partialize<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export type ValidateMode = 'onChange' | 'onChangeAfterSubmit' | 'onSubmit';
 
@@ -87,6 +95,7 @@ declare module '.' {
     name: never;
     onChange: never;
     placeholder: never;
+    readOnly: never;
     showInlineError: never;
     transform: never;
     value: never;

@@ -40,8 +40,8 @@ export function Footer() {
               Join the Community!
             </h2>
             <ul className={styles.bullets}>
-              <Link to="https://gitter.im/vazco/uniforms">
-                <li>Gitter</li>
+              <Link to="https://github.com/vazco/uniforms/discussions">
+                <li>GitHub Discussions</li>
               </Link>
               <Link to="https://github.com/vazco/uniforms">
                 <li>GitHub</li>
@@ -58,7 +58,11 @@ export function Footer() {
               </p>
             </Link>
             <a href="https://vazco.eu">
-              <img className={styles.vazco} src="assets/vazco.svg" />
+              <img
+                alt="Vazco homepage"
+                className={styles.vazco}
+                src="assets/vazco.svg"
+              />
             </a>
             <br />
             <p

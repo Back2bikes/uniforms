@@ -7,7 +7,7 @@ import wrapField from './wrapField';
 export type RadioFieldProps = FieldProps<
   string,
   RadioProps,
-  { allowedValues?: string[]; transform?(value: string): string }
+  { allowedValues?: string[]; transform?: (value: string) => string }
 >;
 
 const radioStyle = { display: 'block' };
@@ -18,7 +18,11 @@ function Radio(props: RadioFieldProps) {
     <RadioAntD.Group
       disabled={props.disabled}
       name={props.name}
-      onChange={event => props.onChange(event.target.value)}
+      onChange={event => {
+        if (!props.readOnly) {
+          props.onChange(event.target.value);
+        }
+      }}
       value={props.value ?? ''}
       {...filterDOMProps(props)}
     >
@@ -31,4 +35,4 @@ function Radio(props: RadioFieldProps) {
   );
 }
 
-export default connectField(Radio, { kind: 'leaf' });
+export default connectField<RadioFieldProps>(Radio, { kind: 'leaf' });

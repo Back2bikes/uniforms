@@ -15,7 +15,8 @@ function ListDel({
   disabled,
   icon = <DeleteOutlined />,
   name,
-  shape = 'circle-outline',
+  readOnly,
+  shape = 'circle',
   size = 'small',
   type = 'ghost',
   ...props
@@ -38,9 +39,11 @@ function ListDel({
       disabled={!limitNotReached}
       icon={icon}
       onClick={() => {
-        const value = parent.value!.slice();
-        value.splice(nameIndex, 1);
-        parent.onChange(value);
+        if (!readOnly) {
+          const value = parent.value!.slice();
+          value.splice(nameIndex, 1);
+          parent.onChange(value);
+        }
       }}
       shape={shape}
       size={size}
@@ -49,4 +52,7 @@ function ListDel({
   );
 }
 
-export default connectField(ListDel, { initialValue: false, kind: 'leaf' });
+export default connectField<ListDelFieldProps>(ListDel, {
+  initialValue: false,
+  kind: 'leaf',
+});

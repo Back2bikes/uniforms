@@ -7,7 +7,7 @@ import createContext from './_createContext';
 import mount from './_mount';
 
 const onChange = jest.fn();
-const context = (schema?: {}) =>
+const context = (schema?: object) =>
   createContext(
     merge({ x: { type: Array, maxCount: 3 }, 'x.$': String }, schema),
     { onChange, model: { x: [] } },
@@ -42,6 +42,14 @@ test('<ListAddField> - default props override', () => {
 
 test('<ListAddField> - prevents onClick when disabled', () => {
   const element = <ListAddField name="x.1" disabled />;
+  const wrapper = mount(element, context());
+
+  expect(wrapper.find('span').simulate('click')).toBeTruthy();
+  expect(onChange).not.toHaveBeenCalled();
+});
+
+test('<ListAddField> - prevents onClick when readOnly', () => {
+  const element = <ListAddField name="x.1" readOnly />;
   const wrapper = mount(element, context());
 
   expect(wrapper.find('span').simulate('click')).toBeTruthy();

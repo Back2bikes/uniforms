@@ -19,17 +19,16 @@ function Nest({
   itemProps,
   label,
   margin = 'dense',
-  name,
   ...props
 }: NestFieldProps) {
   return wrapField(
     { ...props, component: undefined, fullWidth, margin },
     label && <FormLabel component="legend">{label}</FormLabel>,
     children ||
-      fields?.map(field => (
+      fields.map(field => (
         <AutoField key={field} name={field} {...itemProps} />
       )),
   );
 }
 
-export default connectField(Nest);
+export default connectField<NestFieldProps>(Nest);

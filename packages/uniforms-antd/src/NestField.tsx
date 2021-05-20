@@ -16,7 +16,6 @@ function Nest({
   fields,
   itemProps,
   label,
-  name,
   showInlineError,
   ...props
 }: NestFieldProps) {
@@ -34,4 +33,4 @@ function Nest({
   );
 }
 
-export default connectField(Nest);
+export default connectField<NestFieldProps>(Nest);

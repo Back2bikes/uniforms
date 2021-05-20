@@ -11,30 +11,34 @@ import { FieldProps, connectField, filterDOMProps } from 'uniforms';
 import wrapField from './wrapField';
 
 type CheckboxesProps = FieldProps<
-  CheckboxValueType,
+  SelectFieldValue,
   CheckboxGroupProps | RadioGroupProps,
   {
     allowedValues?: CheckboxValueType[];
     checkboxes: true;
-    disableItem?(value: CheckboxValueType): boolean;
-    inputRef?: Ref<CheckboxGroup | typeof RadioGroup>;
+    disableItem?: (value: CheckboxValueType) => boolean;
+    inputRef?: Ref<typeof CheckboxGroup | typeof RadioGroup>;
     required?: boolean;
-    transform?(value: CheckboxValueType): string;
+    transform?: (value: CheckboxValueType) => string;
   }
 >;
 
 type SelectProps = FieldProps<
-  string | (string | undefined)[],
+  SelectFieldValue,
   SelectAntDProps<string | string[]>,
   {
     allowedValues?: string[];
     checkboxes?: false;
-    disableItem?(value: CheckboxValueType): boolean;
-    inputRef?: Ref<SelectAntD<string | string[]>>;
+    disableItem?: (value: CheckboxValueType) => boolean;
+    inputRef?: Ref<typeof SelectAntD>;
     required?: boolean;
-    transform?(value: string): string;
+    transform?: (value: string) => string;
   }
 >;
+
+// This type is needed for the `SelectFieldProps` union to be a proper subtype
+// of `Partial<GuaranteedProps<Value>>` - otherwise `connectField` goes wild.
+type SelectFieldValue = CheckboxValueType | (string | undefined)[];
 
 export type SelectFieldProps = CheckboxesProps | SelectProps;
 
@@ -43,15 +47,20 @@ function Select(props: SelectFieldProps) {
   return wrapField(
     props,
     props.checkboxes ? (
+      // @ts-expect-error: Incorrect `value` type.
       <Group
         disabled={props.disabled}
         name={props.name}
-        onChange={
-          props.fieldType === Array
-            ? // FIXME: Argument type depends on `props.fieldType`.
-              (value: any) => props.onChange(value)
-            : (event: any) => props.onChange(event.target.value)
-        }
+        onChange={(eventOrValue: any) => {
+          if (!props.readOnly) {
+            props.onChange(
+              // FIXME: Argument type depends on `props.fieldType`.
+              props.fieldType === Array
+                ? eventOrValue
+                : eventOrValue.target.value,
+            );
+          }
+        }}
         options={props.allowedValues!.map(value => ({
           disabled: props.disableItem?.(value),
           label: props.transform ? props.transform(value) : value,
@@ -65,10 +74,14 @@ function Select(props: SelectFieldProps) {
         allowClear={!props.required}
         disabled={props.disabled}
         mode={props.fieldType === Array ? 'multiple' : undefined}
-        // @ts-ignore: There's no `name` property on Select?
         name={props.name}
-        onChange={value => props.onChange(value)}
+        onChange={value => {
+          if (!props.readOnly) {
+            props.onChange(value);
+          }
+        }}
         placeholder={props.placeholder}
+        // @ts-expect-error: Incorrect `inputRef` type.
         ref={props.inputRef}
         value={
           props.fieldType === Array
@@ -79,7 +92,7 @@ function Select(props: SelectFieldProps) {
         }
         {...filterDOMProps(props)}
       >
-        {props.allowedValues!.map(value => (
+        {props.allowedValues?.map(value => (
           <SelectAntD.Option
             disabled={props.disableItem?.(value)}
             key={value}
@@ -93,4 +106,4 @@ function Select(props: SelectFieldProps) {
   );
 }
 
-export default connectField(Select, { kind: 'leaf' });
+export default connectField<SelectFieldProps>(Select, { kind: 'leaf' });

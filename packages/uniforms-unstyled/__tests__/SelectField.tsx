@@ -25,6 +25,25 @@ test('<SelectField> - renders a select with correct disabled state', () => {
   expect(wrapper.find('select').prop('disabled')).toBe(true);
 });
 
+test('<SelectField> - renders a select with correct readOnly state', () => {
+  const onChange = jest.fn();
+
+  const element = <SelectField name="x" readOnly />;
+  const wrapper = mount(
+    element,
+    createContext(
+      { x: { type: String, allowedValues: ['a', 'b'] } },
+      { onChange },
+    ),
+  );
+
+  expect(wrapper.find('select')).toHaveLength(1);
+  expect(
+    wrapper.find('select').simulate('change', { target: { value: 'b' } }),
+  ).toBeTruthy();
+  expect(onChange).not.toHaveBeenCalled();
+});
+
 test('<SelectField> - renders a select with correct id (inherited)', () => {
   const element = <SelectField name="x" />;
   const wrapper = mount(
@@ -288,6 +307,23 @@ test('<SelectField checkboxes> - renders a set of checkboxes with correct disabl
   expect(wrapper.find('input').at(1).prop('disabled')).toBe(true);
 });
 
+test('<SelectField checkboxes> - renders a set of checkboxes with correct readOnly state', () => {
+  const onChange = jest.fn();
+
+  const element = <SelectField checkboxes name="x" readOnly />;
+  const wrapper = mount(
+    element,
+    createContext(
+      { x: { type: String, allowedValues: ['a', 'b'] } },
+      { onChange },
+    ),
+  );
+
+  expect(wrapper.find('input')).toHaveLength(2);
+  expect(wrapper.find('input').at(1).simulate('change')).toBeTruthy();
+  expect(onChange).not.toHaveBeenCalled();
+});
+
 test('<SelectField checkboxes> - renders a set of checkboxes with correct id (inherited)', () => {
   const element = <SelectField checkboxes name="x" />;
   const wrapper = mount(
@@ -322,6 +358,157 @@ test('<SelectField checkboxes> - renders a set of checkboxes with correct name',
   expect(wrapper.find('input')).toHaveLength(2);
   expect(wrapper.find('input').at(0).prop('name')).toBe('x');
   expect(wrapper.find('input').at(1).prop('name')).toBe('x');
+});
+
+test('<SelectField> - renders a select with correct value (default)', () => {
+  const element = <SelectField name="x" />;
+  const wrapper = mount(
+    element,
+    createContext({
+      x: { type: Array },
+      'x.$': { type: String, allowedValues: ['a', 'b'] },
+    }),
+  );
+
+  expect(wrapper.find('select')).toHaveLength(1);
+  expect(wrapper.find('select').prop('value')).toStrictEqual([]);
+});
+
+test('<SelectField> - renders a multiselect with disabled options', () => {
+  const element = <SelectField name="x" disableItem={value => value === 'b'} />;
+  const wrapper = mount(
+    element,
+    createContext({
+      x: { type: Array },
+      'x.$': { type: String, allowedValues: ['a', 'b'] },
+    }),
+  );
+
+  expect(wrapper.find('select')).toHaveLength(1);
+  expect(wrapper.find('select').prop('value')).toStrictEqual([]);
+  expect(wrapper.find('option').at(0).prop('disabled')).toBe(false);
+  expect(wrapper.find('option').at(1).prop('disabled')).toBe(true);
+});
+
+test('<SelectField> - renders a select with correct value (model)', () => {
+  const element = <SelectField name="x" />;
+  const wrapper = mount(
+    element,
+    createContext(
+      {
+        x: { type: Array },
+        'x.$': { type: String, allowedValues: ['a', 'b'] },
+      },
+      { model: { x: ['b'] } },
+    ),
+  );
+
+  expect(wrapper.find('select')).toHaveLength(1);
+  expect(wrapper.find('select').prop('value')).toStrictEqual(['b']);
+});
+
+test('<SelectField> - renders a select with correct value (specified)', () => {
+  const element = <SelectField name="x" value={['b']} />;
+  const wrapper = mount(
+    element,
+    createContext({
+      x: { type: Array },
+      'x.$': { type: String, allowedValues: ['a', 'b'] },
+    }),
+  );
+
+  expect(wrapper.find('select')).toHaveLength(1);
+  expect(wrapper.find('select').prop('value')).toStrictEqual(['b']);
+});
+
+test('<SelectField> - renders a select which correctly reacts on change (first value)', () => {
+  const onChange = jest.fn();
+
+  const element = <SelectField name="x" />;
+  const wrapper = mount(
+    element,
+    createContext(
+      {
+        x: { type: Array },
+        'x.$': { type: String, allowedValues: ['a', 'b'] },
+      },
+      { onChange },
+    ),
+  );
+
+  expect(wrapper.find('select')).toHaveLength(1);
+  expect(
+    wrapper.find('select').simulate('change', { target: { value: 'a' } }),
+  ).toBeTruthy();
+  expect(onChange).toHaveBeenLastCalledWith('x', ['a']);
+});
+
+test('<SelectField> - renders a select which correctly reacts on change (next value)', () => {
+  const onChange = jest.fn();
+
+  const element = <SelectField name="x" value={['b']} />;
+  const wrapper = mount(
+    element,
+    createContext(
+      {
+        x: { type: Array },
+        'x.$': { type: String, allowedValues: ['a', 'b'] },
+      },
+      { onChange },
+    ),
+  );
+
+  expect(wrapper.find('select')).toHaveLength(1);
+  expect(
+    wrapper.find('select').simulate('change', { target: { value: 'a' } }),
+  ).toBeTruthy();
+  expect(onChange).toHaveBeenLastCalledWith('x', ['a', 'b']);
+});
+
+test('<SelectField> - renders a select which correctly reacts on change (uncheck) by value', () => {
+  const onChange = jest.fn();
+
+  const element = <SelectField name="x" value={['a']} />;
+  const wrapper = mount(
+    element,
+    createContext(
+      {
+        x: { type: Array },
+        'x.$': { type: String, allowedValues: ['a', 'b'] },
+      },
+      { onChange },
+    ),
+  );
+
+  expect(wrapper.find('select')).toHaveLength(1);
+  expect(
+    wrapper.find('select').simulate('change', { target: { value: 'a' } }),
+  ).toBeTruthy();
+  expect(onChange).toHaveBeenLastCalledWith('x', []);
+});
+
+test('<SelectField> - renders a select which correctly reacts on change (uncheck) by selectedIndex', () => {
+  const onChange = jest.fn();
+
+  const element = <SelectField name="x" value={['a']} />;
+  const wrapper = mount(
+    element,
+    createContext(
+      {
+        x: { type: Array },
+        'x.$': { type: String, allowedValues: ['a', 'b'] },
+      },
+      { onChange },
+    ),
+  );
+
+  expect(wrapper.find('select')).toHaveLength(1);
+  expect(
+    wrapper
+      .find('select')
+      .simulate('change', { target: { selectedIndex: -1 } }),
+  ).toBeTruthy();
+  expect(onChange).toHaveBeenLastCalledWith('x', []);
 });
 
 test('<SelectField checkboxes> - renders a set of checkboxes with correct options', () => {

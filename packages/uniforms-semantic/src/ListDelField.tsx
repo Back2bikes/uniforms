@@ -14,7 +14,7 @@ export type ListDelFieldProps = HTMLFieldProps<
   { name: string }
 >;
 
-function ListDel({ disabled, name, ...props }: ListDelFieldProps) {
+function ListDel({ disabled, name, readOnly, ...props }: ListDelFieldProps) {
   const nameParts = joinName(null, name);
   const nameIndex = +nameParts[nameParts.length - 1];
   const parentName = joinName(nameParts.slice(0, -1));
@@ -27,6 +27,22 @@ function ListDel({ disabled, name, ...props }: ListDelFieldProps) {
   const limitNotReached =
     !disabled && !(parent.minCount! >= parent.value!.length);
 
+  function onAction(
+    event:
+      | React.KeyboardEvent<HTMLElement>
+      | React.MouseEvent<HTMLElement, MouseEvent>,
+  ) {
+    if (
+      limitNotReached &&
+      !readOnly &&
+      (!('key' in event) || event.key === 'Enter')
+    ) {
+      const value = parent.value!.slice();
+      value.splice(nameIndex, 1);
+      parent.onChange(value);
+    }
+  }
+
   return (
     <i
       {...filterDOMProps(props)}
@@ -36,15 +52,15 @@ function ListDel({ disabled, name, ...props }: ListDelFieldProps) {
         limitNotReached ? 'link' : 'disabled',
         'fitted close icon',
       )}
-      onClick={() => {
-        if (limitNotReached) {
-          const value = parent.value!.slice();
-          value.splice(nameIndex, 1);
-          parent.onChange(value);
-        }
-      }}
+      onClick={onAction}
+      onKeyDown={onAction}
+      role="button"
+      tabIndex={0}
     />
   );
 }
 
-export default connectField(ListDel, { initialValue: false, kind: 'leaf' });
+export default connectField<ListDelFieldProps>(ListDel, {
+  initialValue: false,
+  kind: 'leaf',
+});

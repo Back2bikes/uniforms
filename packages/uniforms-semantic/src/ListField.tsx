@@ -8,7 +8,7 @@ import ListItemField from './ListItemField';
 export type ListFieldProps = HTMLFieldProps<
   unknown[],
   HTMLDivElement,
-  { initialCount?: number; itemProps?: {} }
+  { initialCount?: number; itemProps?: object }
 >;
 
 function List({
@@ -20,7 +20,6 @@ function List({
   initialCount,
   itemProps,
   label,
-  name,
   required,
   showInlineError,
   value,
@@ -71,4 +70,4 @@ function List({
   );
 }
 
-export default connectField(List);
+export default connectField<ListFieldProps>(List);

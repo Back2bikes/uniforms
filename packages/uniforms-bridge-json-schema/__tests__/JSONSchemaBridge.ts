@@ -135,8 +135,43 @@ describe('JSONSchemaBridge', () => {
         maxItems: 3,
         minItems: 1,
       },
+      nonObjectAnyOf: {
+        anyOf: [
+          {
+            const: 'alphabetic',
+            type: 'string',
+          },
+          {
+            enum: ['top', 'middle', 'bottom'],
+            type: 'string',
+          },
+          {
+            type: 'number',
+            minimum: 0,
+          },
+        ],
+      },
+      nonObjectAnyOfRequired: {
+        anyOf: [
+          {
+            const: 'alphabetic',
+            type: 'string',
+          },
+          {
+            enum: ['top', 'middle', 'bottom'],
+            type: 'string',
+          },
+          {
+            type: 'number',
+            minimum: 0,
+          },
+        ],
+      },
+      objectWithoutProperties: { type: 'object' },
+      withLabel: { type: 'string', uniforms: { label: 'Example' } },
+      forcedRequired: { type: 'string', uniforms: { required: true } },
     },
-    required: ['dateOfBirth'],
+    required: ['dateOfBirth', 'nonObjectAnyOfRequired'],
   };
 
   const validator = jest.fn();
@@ -152,11 +187,15 @@ describe('JSONSchemaBridge', () => {
         definitions: schema.definitions,
         $ref: '#/definitions/personalData',
       };
-      const localBridge = new JSONSchemaBridge(localSchema, validator);
-      expect(localBridge.schema).toEqual({
+      const resolvedSchema = {
         ...localSchema,
         ...localSchema.definitions.personalData,
-      });
+      };
+      // @ts-expect-error: $ref is not optional.
+      delete resolvedSchema.$ref;
+
+      const localBridge = new JSONSchemaBridge(localSchema, validator);
+      expect(localBridge.schema).toEqual(resolvedSchema);
     });
 
     it('falls back to input schema', () => {
@@ -182,11 +221,34 @@ describe('JSONSchemaBridge', () => {
       expect(bridge.getError('y', error)).toEqual(null);
     });
 
+    it('works with correct error (instance path)', () => {
+      const error = { details: [{ instancePath: '.x' }] };
+      expect(bridge.getError('x', error)).toEqual(error.details[0]);
+      expect(bridge.getError('y', error)).toEqual(null);
+    });
+
     it('works with correct error (data path at root)', () => {
       const error = {
         details: [
           {
             dataPath: '',
+            keyword: 'required',
+            message: "should have required property 'x'",
+            params: { missingProperty: 'x' },
+            schemaPath: '#/required',
+          },
+        ],
+      };
+
+      expect(bridge.getError('x', error)).toEqual(error.details[0]);
+      expect(bridge.getError('y', error)).toEqual(null);
+    });
+
+    it('works with correct error (instance path at root)', () => {
+      const error = {
+        details: [
+          {
+            instancePath: '',
             keyword: 'required',
             message: "should have required property 'x'",
             params: { missingProperty: 'x' },
@@ -217,15 +279,48 @@ describe('JSONSchemaBridge', () => {
       expect(bridge.getError('y.x', error)).toEqual(null);
     });
 
+    it('works with correct error (instance path of parent)', () => {
+      const error = {
+        details: [
+          {
+            instancePath: '.x',
+            keyword: 'required',
+            message: "should have required property 'y'",
+            params: { missingProperty: 'y' },
+            schemaPath: '#/properties/x/required',
+          },
+        ],
+      };
+
+      expect(bridge.getError('x.x', error)).toEqual(null);
+      expect(bridge.getError('x.y', error)).toEqual(error.details[0]);
+      expect(bridge.getError('y.x', error)).toEqual(null);
+    });
+
     it('works with correct error (complex data paths)', () => {
       const pairs = [
         ["a.0.b.c-d.0.f/'g", ".a[0].b['c-d'][0]['f/\\'g']"],
         ['a.0.b.c-d.0.h/"i', ".a[0].b['c-d'][0]['h/\"i']"],
         ['a.0.b.c-d.0.j\'/"k~', ".a[0].b['c-d'][0]['j\\'/\"k~']"],
+        ['a b', '["a b"]'],
       ];
 
       pairs.forEach(([name, dataPath]) => {
         const error = { details: [{ dataPath }] };
+        expect(bridge.getError(name, error)).toEqual(error.details[0]);
+      });
+    });
+
+    it('works with correct error (complex instance paths)', () => {
+      const pairs = [
+        ["a.0.b.c-d.0.f/'g", ".a[0].b['c-d'][0]['f/\\'g']"],
+        ['a.0.b.c-d.0.h/"i', ".a[0].b['c-d'][0]['h/\"i']"],
+        ['a.0.b.c-d.0.j\'/"k~', ".a[0].b['c-d'][0]['j\\'/\"k~']"],
+        ['a b', '["a b"]'],
+      ];
+
+      pairs.forEach(([name, instancePath]) => {
+        const error = { details: [{ instancePath }] };
         expect(bridge.getError(name, error)).toEqual(error.details[0]);
       });
     });
@@ -235,10 +330,25 @@ describe('JSONSchemaBridge', () => {
         ["a.0.b.c-d.0.f/'g", "/a/0/b/c-d/0/f~1'g"],
         ['a.0.b.c-d.0.h/"i', '/a/0/b/c-d/0/h~1"i'],
         ['a.0.b.c-d.0.j\'/"k~', '/a/0/b/c-d/0/j\'~1"k~0'],
+        ['a b', '/a b'],
       ];
 
       pairs.forEach(([name, dataPath]) => {
         const error = { details: [{ dataPath }] };
+        expect(bridge.getError(name, error)).toEqual(error.details[0]);
+      });
+    });
+
+    it('works with correct error (complex instance paths - JSON pointers)', () => {
+      const pairs = [
+        ["a.0.b.c-d.0.f/'g", "/a/0/b/c-d/0/f~1'g"],
+        ['a.0.b.c-d.0.h/"i', '/a/0/b/c-d/0/h~1"i'],
+        ['a.0.b.c-d.0.j\'/"k~', '/a/0/b/c-d/0/j\'~1"k~0'],
+        ['a b', '/a b'],
+      ];
+
+      pairs.forEach(([name, instancePath]) => {
+        const error = { details: [{ instancePath }] };
         expect(bridge.getError(name, error)).toEqual(error.details[0]);
       });
     });
@@ -266,10 +376,24 @@ describe('JSONSchemaBridge', () => {
         }),
       ).toBe('');
     });
+
+    it('works with correct error (instance path)', () => {
+      expect(
+        bridge.getErrorMessage('age', {
+          details: [{ instancePath: '.age', message: 'Zing!' }],
+        }),
+      ).toBe('Zing!');
+      expect(
+        bridge.getErrorMessage('age', {
+          details: [{ instancePath: '.field', message: 'Ignore!' }],
+        }),
+      ).toBe('');
+    });
   });
 
   describe('#getErrorMessages', () => {
     it('works without error', () => {
+      expect(bridge.getErrorMessages(null)).toEqual([]);
       expect(bridge.getErrorMessages(undefined)).toEqual([]);
     });
 
@@ -293,6 +417,19 @@ describe('JSONSchemaBridge', () => {
       expect(
         bridge.getErrorMessages({
           details: [{ dataPath: '.field', message: 'Ignore!' }],
+        }),
+      ).toEqual(['Ignore!']);
+    });
+
+    it('works with ValidationError (instance path)', () => {
+      expect(
+        bridge.getErrorMessages({
+          details: [{ instancePath: '.age', message: 'Zing!' }],
+        }),
+      ).toEqual(['Zing!']);
+      expect(
+        bridge.getErrorMessages({
+          details: [{ instancePath: '.field', message: 'Ignore!' }],
         }),
       ).toEqual(['Ignore!']);
     });
@@ -459,10 +596,24 @@ describe('JSONSchemaBridge', () => {
       });
     });
 
+    it('works with allowedValues from props', () => {
+      expect(bridge.getProps('forcedRequired')).toEqual({
+        label: 'Forced required',
+        required: true,
+      });
+    });
+
     it('works with custom component', () => {
       expect(bridge.getProps('age')).toEqual({
         component: 'span',
         label: 'Age',
+        required: false,
+      });
+    });
+
+    it('works with label (default)', () => {
+      expect(bridge.getProps('withLabel')).toEqual({
+        label: 'Example',
         required: false,
       });
     });
@@ -488,18 +639,6 @@ describe('JSONSchemaBridge', () => {
         options: undefined,
         placeholder: undefined,
         required: false,
-      });
-    });
-
-    it('works with label (falsy)', () => {
-      expect(bridge.getProps('billingAddress.city')).toEqual({
-        label: '',
-        required: false,
-      });
-
-      expect(bridge.getProps('dateOfBirth', { label: null })).toEqual({
-        label: 'Date of birth',
-        required: true,
       });
     });
 
@@ -615,6 +754,27 @@ describe('JSONSchemaBridge', () => {
       });
     });
 
+    it('works with anyOf for a non-object computed property (required default value)', () => {
+      expect(bridge.getProps('nonObjectAnyOf')).toHaveProperty(
+        'required',
+        false,
+      );
+    });
+
+    it('works with anyOf for a non-object computed property (required)', () => {
+      expect(bridge.getProps('nonObjectAnyOfRequired')).toHaveProperty(
+        'required',
+        true,
+      );
+    });
+
+    it('works with anyOf for a non-object computed property (properties not defined)', () => {
+      expect(bridge.getProps('nonObjectAnyOf')).toHaveProperty(
+        'properties',
+        undefined,
+      );
+    });
+
     it('works with maxItems in props', () => {
       expect(bridge.getProps('arrayWithAllOf')).toHaveProperty('maxCount', 3);
     });
@@ -656,6 +816,11 @@ describe('JSONSchemaBridge', () => {
         'passwordNumeric',
         'recursive',
         'arrayWithAllOf',
+        'nonObjectAnyOf',
+        'nonObjectAnyOfRequired',
+        'objectWithoutProperties',
+        'withLabel',
+        'forcedRequired',
       ]);
     });
 
@@ -689,6 +854,10 @@ describe('JSONSchemaBridge', () => {
       );
 
       expect(localBridge.getSubfields()).toEqual(['city', 'state', 'street']);
+    });
+
+    it('works when an object does not have properties', () => {
+      expect(bridge.getSubfields('objectWithoutProperties')).toEqual([]);
     });
 
     it('works on top level when schema does not have properties', () => {

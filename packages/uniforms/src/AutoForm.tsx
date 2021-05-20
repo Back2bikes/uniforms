@@ -4,6 +4,7 @@ import omit from 'lodash/omit';
 import setWith from 'lodash/setWith';
 
 // FIXME: This import is needed to correctly build AutoForm.d.ts file.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { BaseForm } from './BaseForm';
 import {
   ValidatedQuickForm,
@@ -13,7 +14,7 @@ import {
 import { DeepPartial, ModelTransformMode } from './types';
 
 export type AutoFormProps<Model> = ValidatedQuickFormProps<Model> & {
-  onChangeModel?(model: DeepPartial<Model>): void;
+  onChangeModel?: (model: DeepPartial<Model>) => void;
 };
 
 export type AutoFormState<Model> = ValidatedQuickFormState<Model> & {
@@ -22,7 +23,7 @@ export type AutoFormState<Model> = ValidatedQuickFormState<Model> & {
 };
 
 export function Auto<Base extends typeof ValidatedQuickForm>(Base: Base) {
-  // @ts-ignore: Mixin class problem.
+  // @ts-expect-error: Mixin class problem.
   class AutoForm<
     Model,
     Props extends AutoFormProps<Model> = AutoFormProps<Model>,
@@ -53,6 +54,7 @@ export function Auto<Base extends typeof ValidatedQuickForm>(Base: Base) {
       return omit(super.getNativeFormProps(), ['onChangeModel']);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     getModel(mode: ModelTransformMode) {
       return this.state.model;
     }

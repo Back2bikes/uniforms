@@ -3,11 +3,11 @@ import Tooltip from 'antd/lib/tooltip';
 import classNames from 'classnames';
 import React, {
   Children,
-  ReactNode,
   cloneElement,
   isValidElement,
+  ReactNode,
 } from 'react';
-import { HTMLFieldProps, connectField, filterDOMProps } from 'uniforms';
+import { connectField, filterDOMProps, HTMLFieldProps } from 'uniforms';
 
 import ListAddField from './ListAddField';
 import ListItemField from './ListItemField';
@@ -20,7 +20,7 @@ export type ListFieldProps = HTMLFieldProps<
     children?: ReactNode;
     info?: string;
     initialCount?: number;
-    itemProps?: {};
+    itemProps?: object;
     labelCol?: any;
     wrapperCol?: any;
   }
@@ -31,6 +31,8 @@ const defaultStyle = {
   marginTop: '5px',
   padding: '10px',
 };
+
+const errorStyle = { borderColor: 'rgb(255, 85, 0)' };
 
 function List({
   children = <ListItemField name="$" />,
@@ -48,13 +50,19 @@ function List({
   wrapperCol,
   ...props
 }: ListFieldProps) {
+  const wrapperStyle = error
+    ? style
+      ? { ...errorStyle, ...style }
+      : errorStyle
+    : style;
+
   return (
     <div
       {...filterDOMProps(props)}
-      style={style}
+      style={wrapperStyle}
       className={classNames([className, 'ant-list', 'ant-list-bordered'])}
     >
-      {label && (
+      {!!label && (
         <div>
           {label}
           {!!info && (
@@ -89,4 +97,4 @@ function List({
   );
 }
 
-export default connectField(List);
+export default connectField<ListFieldProps>(List);

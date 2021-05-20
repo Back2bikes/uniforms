@@ -1,4 +1,4 @@
-import TextArea, { TextAreaProps } from 'antd/lib/input/TextArea';
+import TextArea, { TextAreaProps, TextAreaRef } from 'antd/lib/input/TextArea';
 import React, { Ref } from 'react';
 import { FieldProps, connectField, filterDOMProps } from 'uniforms';
 
@@ -8,7 +8,7 @@ export type LongTextFieldProps = FieldProps<
   string,
   // FIXME: Why `onReset` fails with `wrapField`?
   Omit<TextAreaProps, 'onReset'>,
-  { inputRef?: Ref<TextArea> }
+  { inputRef?: Ref<TextAreaRef> }
 >;
 
 function LongText({ rows = 5, ...props }: LongTextFieldProps) {
@@ -19,6 +19,7 @@ function LongText({ rows = 5, ...props }: LongTextFieldProps) {
       name={props.name}
       onChange={event => props.onChange(event.target.value)}
       placeholder={props.placeholder}
+      readOnly={props.readOnly}
       ref={props.inputRef}
       rows={rows}
       value={props.value ?? ''}
@@ -27,4 +28,4 @@ function LongText({ rows = 5, ...props }: LongTextFieldProps) {
   );
 }
 
-export default connectField(LongText, { kind: 'leaf' });
+export default connectField<LongTextFieldProps>(LongText, { kind: 'leaf' });

@@ -1,6 +1,6 @@
 import Ajv from 'ajv';
 import { buildASTSchema, parse } from 'graphql';
-// @ts-ignore: Typings.
+// @ts-expect-error: Typings.
 import MessageBox from 'message-box';
 import SimpleSchema from 'simpl-schema';
 import { GraphQLBridge } from 'uniforms-bridge-graphql';
@@ -35,6 +35,7 @@ const propsSchema = new SimpleSchema({
   disabled: { optional: true, type: Boolean },
   label: { optional: true, type: Boolean },
   placeholder: { optional: true, type: Boolean },
+  readOnly: { optional: true, type: Boolean },
   showInlineError: { optional: true, type: Boolean },
   asyncOnSubmit: {
     optional: true,
@@ -82,18 +83,19 @@ export const schema = new SimpleSchema({
       disabled: false,
       label: true,
       placeholder: false,
+      readOnly: false,
       schema: presets[Object.keys(presets)[0] as keyof typeof presets],
       showInlineError: false,
       asyncOnSubmit: false,
       asyncOnValidate: false,
     },
-    // @ts-ignore: SimpleSchema extensibility.
+    // @ts-expect-error: SimpleSchema extensibility.
     uniforms: { schema: propsBridge },
   },
 
   theme: {
     type: String,
-    // @ts-ignore: SimpleSchema extensibility.
+    // @ts-expect-error: SimpleSchema extensibility.
     uniforms: { transform: (theme: string) => `uniforms-${theme}` },
     defaultValue: Object.keys(themes)[0],
     allowedValues: Object.keys(themes),

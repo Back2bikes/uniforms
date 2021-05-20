@@ -1,10 +1,11 @@
+import omit from 'lodash/omit';
 import React from 'react';
 import { HTMLFieldProps, connectField, filterDOMProps } from 'uniforms';
 
-const base64 =
-  typeof btoa !== 'undefined'
-    ? btoa
-    : (x: string) => Buffer.from(x).toString('base64');
+const base64: typeof btoa =
+  typeof btoa === 'undefined'
+    ? /* istanbul ignore next */ x => Buffer.from(x).toString('base64')
+    : btoa;
 const escape = (x: string) => base64(encodeURIComponent(x)).replace(/=+$/, '');
 
 export type RadioFieldProps = HTMLFieldProps<
@@ -13,24 +14,24 @@ export type RadioFieldProps = HTMLFieldProps<
   {
     allowedValues?: string[];
     checkboxes?: boolean;
-    transform?(value: string): string;
+    transform?: (value: string) => string;
   }
 >;
 
 function Radio({
   allowedValues,
-  checkboxes, // eslint-disable-line no-unused-vars
   disabled,
   id,
   label,
   name,
   onChange,
+  readOnly,
   transform,
   value,
   ...props
 }: RadioFieldProps) {
   return (
-    <div {...filterDOMProps(props)}>
+    <div {...omit(filterDOMProps(props), ['checkboxes'])}>
       {label && <label>{label}</label>}
 
       {allowedValues?.map(item => (
@@ -40,7 +41,11 @@ function Radio({
             disabled={disabled}
             id={`${id}-${escape(item)}`}
             name={name}
-            onChange={() => onChange(item)}
+            onChange={() => {
+              if (!readOnly) {
+                onChange(item);
+              }
+            }}
             type="radio"
           />
 
@@ -53,4 +58,4 @@ function Radio({
   );
 }
 
-export default connectField(Radio, { kind: 'leaf' });
+export default connectField<RadioFieldProps>(Radio, { kind: 'leaf' });

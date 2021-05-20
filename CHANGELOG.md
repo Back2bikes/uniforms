@@ -1,3 +1,60 @@
+## [v3.5.1](https://github.com/vazco/uniforms/tree/v3.5.1) (2021-05-17)
+
+- **Fixed:** Incorrect label placing of `DateField` in `uniforms-material`. [\#961](https://github.com/vazco/uniforms/issues/961)
+- **Fixed:** Incorrect `null` handling in `getErrorMessages` in `GraphQLSchemaBridge`. [\#950](https://github.com/vazco/uniforms/issues/950)
+
+## [v3.5.0](https://github.com/vazco/uniforms/tree/v3.5.0) (2021-05-12)
+
+- **Changed:** Bumped minimal required version of `tslib` to 2.2.0. [\#949](https://github.com/vazco/uniforms/issues/949)
+- **Fixed:** Handling of `object` fields with no `properties` in `JSONSchemaBridge`. [\#934](https://github.com/vazco/uniforms/issues/934)
+- **Fixed:** Simplified typings of all field components. [\#949](https://github.com/vazco/uniforms/pull/949)
+- **Fixed:** TypeScript error in `uniforms-bootstrap4`. [\#904](https://github.com/vazco/uniforms/pull/904)
+- **Optimized:** The `changedKeys` helper. [\#953](https://github.com/vazco/uniforms/pull/953)
+
+## [v3.4.0](https://github.com/vazco/uniforms/tree/v3.4.0) (2021-04-23)
+
+- **Added:** Ajv v8 support in `JSONSchemaBridge`. [\#923](https://github.com/vazco/uniforms/issues/923)
+- **Added:** New `showInlineError` on `AutoFields`. [\#827](https://github.com/vazco/uniforms/issues/827)
+- **Added:** Success styling in all Bootstrap themes. [\#899](https://github.com/vazco/uniforms/issues/899)
+- **Fixed:** Handling of more `anyOf` cases in `JSONSchemaBridge`. [\#919](https://github.com/vazco/uniforms/issues/919)
+- **Fixed:** Leaking `setTimeout` of `BaseForm`. [\#920](https://github.com/vazco/uniforms/issues/920)
+- **Optimized:** The `filterDOMProps` helper. [\#939](https://github.com/vazco/uniforms/pull/939)
+- **Optimized:** The `joinName` helper. [\#935](https://github.com/vazco/uniforms/pull/935)
+
+## [v3.3.0](https://github.com/vazco/uniforms/tree/v3.3.0) (2021-03-31)
+
+- **Added:** Compatibility with React v17. [\#859](https://github.com/vazco/uniforms/issues/859)
+- **Added:** New context property: `submitted`. [\#889](https://github.com/vazco/uniforms/issues/889)
+- **Added:** New theme: `uniforms-bootstrap5`. [\#874](https://github.com/vazco/uniforms/issues/874)
+- **Fixed:** Accessibility problems in many components. [\#867](https://github.com/vazco/uniforms/issues/867)
+- **Fixed:** Handling of `initialCount` in optional list fields. [\#875](https://github.com/vazco/uniforms/issues/875)
+- **Fixed:** Handling of `JSONSchemaBridge` errors with top-level fields containing spaces. [\#909](https://github.com/vazco/uniforms/issues/909)
+
+## [v3.2.1](https://github.com/vazco/uniforms/tree/v3.2.1) (2021-03-10)
+
+- **Fixed:** Incorrect typings of some functions as methods. [\#887](https://github.com/vazco/uniforms/issues/887)
+- **Fixed:** Invalid `sideEffect` configuration in `uniforms-bridge-simple-schema` and `uniforms-bridge-simple-schema-2`. [\#888](https://github.com/vazco/uniforms/issues/888)
+- **Fixed:** Styling of `SelectField` in `uniforms-semantic`. [\#873](https://github.com/vazco/uniforms/issues/873)
+
+## [v3.2.0](https://github.com/vazco/uniforms/tree/v3.2.0) (2021-02-17)
+
+- **Added:** Error styling to `ListField` in `uniforms-antd`. [\#844](https://github.com/vazco/uniforms/issues/844)
+- **Added:** New `layout` prop in `BaseForm` in `uniforms-antd` to match AntD capabilities. [\#861](https://github.com/vazco/uniforms/issues/861)
+- **Added:** The [`sideEffects`](https://webpack.js.org/guides/tree-shaking/) flag to let bundlers do better at tree shaking. [\#843](https://github.com/vazco/uniforms/issues/843)
+
+## [v3.1.0](https://github.com/vazco/uniforms/tree/v3.1.0) (2021-02-03)
+
+- **Added:** New `readOnly` prop in all form and field components. [\#674](https://github.com/vazco/uniforms/issues/674)
+- **Added:** Replacable `AutoField` component. [\#640](https://github.com/vazco/uniforms/issues/640)
+- **Added:** Support for HTML multiselects in `SelectField` prop in all themes. [\#737](https://github.com/vazco/uniforms/issues/737)
+
+## [v3.0.1](https://github.com/vazco/uniforms/tree/v3.0.1) (2021-01-28)
+
+- **Fixed:** Missing `step` prop in `NumField` in `uniforms-material`. [\#855](https://github.com/vazco/uniforms/issues/855)
+- **Fixed:** Unified `NumField` behavior across themes. [\#856](https://github.com/vazco/uniforms/issues/856)
+
+## [v3.0.0](https://github.com/vazco/uniforms/tree/v3.0.0) (2021-01-14)
+
 ## [v3.0.0-rc.8](https://github.com/vazco/uniforms/tree/v3.0.0-rc.8) (2020-12-05)
 
 - **Breaking:** Due to synchronization of `AutoForm` `model`, autosave is now **always** asynchronous. [\#832](https://github.com/vazco/uniforms/issues/832)

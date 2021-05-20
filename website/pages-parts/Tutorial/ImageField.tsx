@@ -1,14 +1,15 @@
 import React from 'react';
 import { HTMLFieldProps, connectField } from 'uniforms';
 
-type ImageProps = HTMLFieldProps<string, HTMLDivElement>;
+export type ImageFieldProps = HTMLFieldProps<string, HTMLDivElement>;
 
-function Image({ onChange, value }: ImageProps) {
+function Image({ onChange, value }: ImageFieldProps) {
   return (
     <div className="ImageField">
       <label htmlFor="file-input">
         <div>Choose your photo</div>
         <img
+          alt=""
           style={{ cursor: 'pointer', width: '150px', height: '150px' }}
           src={value || 'https://picsum.photos/150?grayscale'}
         />
@@ -28,4 +29,4 @@ function Image({ onChange, value }: ImageProps) {
   );
 }
 
-export default connectField(Image);
+export default connectField<ImageFieldProps>(Image);

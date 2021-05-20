@@ -1,8 +1,29 @@
+import { screen } from '@testing-library/react';
 import React from 'react';
 import { TextField } from 'uniforms-bootstrap3';
+import { runTextFieldTests } from 'uniforms/__suites__/TextField';
+import { render } from 'uniforms/__suites__/renderWithContext';
 
 import createContext from './_createContext';
 import mount from './_mount';
+
+describe('@RTL - TextField tests', () => {
+  runTextFieldTests(TextField);
+
+  test('<TextField> - renders a wrapper with unknown props', () => {
+    const props = {
+      'data-x': 'x',
+      'data-y': 'y',
+      'data-z': 'z',
+    };
+    render(<TextField name="x" {...props} />);
+
+    const wrapper = screen.getByRole('textbox').closest('div');
+    Object.entries(props).forEach(([key, value]) =>
+      expect(wrapper).toHaveAttribute(key, value),
+    );
+  });
+});
 
 test('<TextField> - renders an input', () => {
   const element = <TextField name="x" />;
@@ -17,6 +38,14 @@ test('<TextField> - renders an input with correct disabled state', () => {
 
   expect(wrapper.find('input')).toHaveLength(1);
   expect(wrapper.find('input').prop('disabled')).toBe(true);
+});
+
+test('<TextField> - renders an input with correct readOnly state', () => {
+  const element = <TextField name="x" readOnly />;
+  const wrapper = mount(element, createContext({ x: { type: String } }));
+
+  expect(wrapper.find('input')).toHaveLength(1);
+  expect(wrapper.find('input').prop('readOnly')).toBe(true);
 });
 
 test('<TextField> - renders an input with correct id (inherited)', () => {

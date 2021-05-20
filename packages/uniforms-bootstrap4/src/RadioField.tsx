@@ -4,10 +4,10 @@ import { connectField, HTMLFieldProps } from 'uniforms';
 
 import wrapField from './wrapField';
 
-const base64 =
-  typeof btoa !== 'undefined'
-    ? btoa
-    : (x: string) => Buffer.from(x).toString('base64');
+const base64: typeof btoa =
+  typeof btoa === 'undefined'
+    ? /* istanbul ignore next */ x => Buffer.from(x).toString('base64')
+    : btoa;
 const escape = (x: string) => base64(encodeURIComponent(x)).replace(/=+$/, '');
 
 export type RadioFieldProps = HTMLFieldProps<
@@ -17,7 +17,7 @@ export type RadioFieldProps = HTMLFieldProps<
     allowedValues?: string[];
     inline?: boolean;
     inputClassName?: string;
-    transform?(value: string): string;
+    transform?: (value: string) => string;
   }
 >;
 
@@ -28,8 +28,9 @@ function Radio(props: RadioFieldProps) {
       <div
         key={item}
         className={classnames(props.inputClassName, 'form-check', 'radio', {
-          'text-danger': props.error,
           'custom-control-inline': props.inline,
+          'text-danger': props.error,
+          'text-success': !props.error && props.changed,
         })}
       >
         <label
@@ -42,7 +43,11 @@ function Radio(props: RadioFieldProps) {
             disabled={props.disabled}
             id={`${props.id}-${escape(item)}`}
             name={props.name}
-            onChange={() => props.onChange(item)}
+            onChange={() => {
+              if (!props.readOnly) {
+                props.onChange(item);
+              }
+            }}
             type="radio"
           />{' '}
           {props.transform ? props.transform(item) : item}
@@ -52,4 +57,4 @@ function Radio(props: RadioFieldProps) {
   );
 }
 
-export default connectField(Radio, { kind: 'leaf' });
+export default connectField<RadioFieldProps>(Radio, { kind: 'leaf' });

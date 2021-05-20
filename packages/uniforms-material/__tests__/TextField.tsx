@@ -1,9 +1,44 @@
 import TextFieldMaterial from '@material-ui/core/TextField';
+import { screen } from '@testing-library/react';
 import React from 'react';
 import { TextField } from 'uniforms-material';
+import { runTextFieldTests } from 'uniforms/__suites__/TextField';
+import { render } from 'uniforms/__suites__/renderWithContext';
 
 import createContext from './_createContext';
 import mount from './_mount';
+
+describe('@RTL - TextField tests', () => {
+  runTextFieldTests(TextField);
+
+  test('<TextField> - renders a TextField with correct error text (specified)', () => {
+    const errorMessage = 'Error';
+    render(
+      <TextField
+        error={new Error()}
+        name="x"
+        showInlineError
+        errorMessage={errorMessage}
+      />,
+    );
+
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
+  });
+
+  test('<TextField> - renders a TextField with correct error text (showInlineError=false)', () => {
+    const errorMessage = 'Error';
+    render(
+      <TextField
+        name="x"
+        error={new Error()}
+        showInlineError={false}
+        errorMessage={errorMessage}
+      />,
+    );
+
+    expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
+  });
+});
 
 test('<TextField> - renders an TextField', () => {
   const element = <TextField name="x" />;
@@ -18,6 +53,16 @@ test('<TextField> - renders a TextField with correct disabled state', () => {
 
   expect(wrapper.find(TextFieldMaterial)).toHaveLength(1);
   expect(wrapper.find(TextFieldMaterial).prop('disabled')).toBe(true);
+});
+
+test('<TextField> - renders a TextField with correct readOnly state', () => {
+  const element = <TextField name="x" inputProps={{ readOnly: true }} />;
+  const wrapper = mount(element, createContext({ x: { type: String } }));
+
+  expect(wrapper.find(TextFieldMaterial)).toHaveLength(1);
+  expect(wrapper.find(TextFieldMaterial).prop('inputProps')!.readOnly).toBe(
+    true,
+  );
 });
 
 test('<TextField> - renders a TextField with correct id (inherited)', () => {

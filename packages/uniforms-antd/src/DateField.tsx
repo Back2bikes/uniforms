@@ -23,12 +23,15 @@ function Date({
     props,
     <DatePicker
       disabled={props.disabled}
+      inputReadOnly={props.readOnly}
       name={props.name}
       onChange={value => {
-        props.onChange(value ? value.toDate() : undefined);
+        if (!props.readOnly) {
+          props.onChange(value ? value.toDate() : undefined);
+        }
       }}
       placeholder={props.placeholder}
-      // @ts-ignore: `DatePicker` is an intersection.
+      // @ts-expect-error: `DatePicker` is an intersection.
       ref={props.inputRef}
       showTime={showTime}
       style={style}
@@ -38,4 +41,4 @@ function Date({
   );
 }
 
-export default connectField(Date, { kind: 'leaf' });
+export default connectField<DateFieldProps>(Date, { kind: 'leaf' });

@@ -3,6 +3,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormLabel from '@material-ui/core/FormLabel';
 import Switch, { SwitchProps } from '@material-ui/core/Switch';
+import omit from 'lodash/omit';
 import React, { Ref } from 'react';
 import { FieldProps, connectField, filterDOMProps } from 'uniforms';
 
@@ -15,7 +16,7 @@ export type BoolFieldProps = FieldProps<
     appearance?: 'checkbox' | 'switch';
     helperText?: string;
     legend?: string;
-    transform?(label: string): string;
+    transform?: (label: string) => string;
   }
 >;
 
@@ -28,6 +29,7 @@ function Bool(props: BoolFieldProps) {
     legend,
     name,
     onChange,
+    readOnly,
     transform,
     value,
   } = props;
@@ -48,11 +50,14 @@ function Bool(props: BoolFieldProps) {
             checked={!!value}
             name={name}
             onChange={event =>
-              !disabled && onChange && onChange(event.target.checked)
+              !disabled &&
+              !readOnly &&
+              onChange &&
+              onChange(event.target.checked)
             }
             ref={inputRef as Ref<HTMLButtonElement>}
             value={name}
-            {...filterDOMProps(props)}
+            {...omit(filterDOMProps(props), ['helperText'])}
           />
         }
         label={transform ? transform(label as string) : label}
@@ -61,4 +66,4 @@ function Bool(props: BoolFieldProps) {
   );
 }
 
-export default connectField(Bool, { kind: 'leaf' });
+export default connectField<BoolFieldProps>(Bool, { kind: 'leaf' });

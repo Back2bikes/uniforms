@@ -4,6 +4,7 @@ import { connectField, HTMLFieldProps } from 'uniforms';
 
 import wrapField from './wrapField';
 
+/* istanbul ignore next */
 const DateConstructor = (typeof global === 'object' ? global : window).Date;
 const dateFormat = (value?: Date) => value?.toISOString().slice(0, -8);
 
@@ -31,9 +32,8 @@ function Date({
   name,
   onChange,
   placeholder,
-  showInlineError,
+  readOnly,
   value,
-  wrapClassName,
   ...props
 }: DateFieldProps) {
   return wrapField(
@@ -56,6 +56,7 @@ function Date({
         }
       }}
       placeholder={placeholder}
+      readOnly={readOnly}
       ref={inputRef}
       type="datetime-local"
       value={dateFormat(value) ?? ''}
@@ -63,4 +64,4 @@ function Date({
   );
 }
 
-export default connectField(Date, { kind: 'leaf' });
+export default connectField<DateFieldProps>(Date, { kind: 'leaf' });

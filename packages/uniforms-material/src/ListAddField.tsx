@@ -26,19 +26,20 @@ function ListAdd({
   disabled,
   fullWidth = true,
   icon = '+',
+  initialCount,
   margin = 'dense',
   name,
+  readOnly,
   value,
   variant,
   ...props
 }: ListAddFieldProps) {
   const nameParts = joinName(null, name);
   const parentName = joinName(nameParts.slice(0, -1));
-  const parent = useField<{ maxCount?: number }, unknown[]>(
-    parentName,
-    {},
-    { absoluteName: true },
-  )[0];
+  const parent = useField<
+    { initialCount?: number; maxCount?: number },
+    unknown[]
+  >(parentName, { initialCount }, { absoluteName: true })[0];
 
   const limitNotReached =
     !disabled && !(parent.maxCount! <= parent.value!.length);
@@ -49,7 +50,9 @@ function ListAdd({
         {...filterDOMProps(props)}
         disabled={!limitNotReached}
         onClick={() => {
-          parent.onChange(parent.value!.concat([cloneDeep(value)]));
+          if (!readOnly) {
+            parent.onChange(parent.value!.concat([cloneDeep(value)]));
+          }
         }}
       >
         {icon}
@@ -58,4 +61,7 @@ function ListAdd({
   );
 }
 
-export default connectField(ListAdd, { initialValue: false, kind: 'leaf' });
+export default connectField<ListAddFieldProps>(ListAdd, {
+  initialValue: false,
+  kind: 'leaf',
+});

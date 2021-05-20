@@ -18,7 +18,7 @@ function Cycle({
   value,
 }: CycleProps) {
   return (
-    <a
+    <button
       style={{
         border: '1px solid black',
         color: '#0e0e0e',
@@ -27,20 +27,21 @@ function Cycle({
         margin: '1em 0',
         padding: '1em',
       }}
+      type="button"
       onClick={() =>
         onChange(
           value
             ? allowedValues.indexOf(value) === allowedValues.length - 1
               ? required
                 ? allowedValues[0]
-                : null
+                : undefined
               : allowedValues[allowedValues.indexOf(value) + 1]
             : allowedValues[0],
         )
       }
     >
       ➡ {value || label} ➡
-    </a>
+    </button>
   );
 }
 

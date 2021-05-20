@@ -18,6 +18,7 @@ function Bool({
   label,
   name,
   onChange,
+  readOnly,
   required,
   showInlineError,
   value,
@@ -43,7 +44,11 @@ function Bool({
           disabled={disabled}
           id={id}
           name={name}
-          onChange={() => onChange(!value)}
+          onChange={() => {
+            if (!readOnly) {
+              onChange(!value);
+            }
+          }}
           ref={inputRef}
           type="checkbox"
         />
@@ -59,4 +64,4 @@ function Bool({
     </div>
   );
 }
-export default connectField(Bool, { kind: 'leaf' });
+export default connectField<BoolFieldProps>(Bool, { kind: 'leaf' });

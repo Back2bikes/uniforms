@@ -10,7 +10,7 @@ import Switch, { SwitchProps } from '@material-ui/core/Switch';
 import TextField, { TextFieldProps } from '@material-ui/core/TextField';
 import omit from 'lodash/omit';
 import xor from 'lodash/xor';
-import React, { ReactNode, Ref } from 'react';
+import React, { Ref } from 'react';
 import { FieldProps, connectField, filterDOMProps } from 'uniforms';
 
 import wrapField from './wrapField';
@@ -19,11 +19,11 @@ type SelectFieldCommonProps = {
   allowedValues?: string[];
   appearance?: 'checkbox' | 'switch';
   checkboxes?: boolean;
-  disableItem?(value: string): boolean;
+  disableItem?: (value: string) => boolean;
   inputRef?: Ref<HTMLButtonElement>;
   native?: boolean;
   required?: boolean;
-  transform?(value: string): string;
+  transform?: (value: string) => string;
 };
 
 type CheckboxesProps = FieldProps<
@@ -49,10 +49,10 @@ type SelectProps = FieldProps<
 export type SelectFieldProps = (CheckboxesProps | SelectProps) &
   SelectFieldCommonProps;
 
-const base64 =
-  typeof btoa !== 'undefined'
-    ? btoa
-    : (x: string) => Buffer.from(x).toString('base64');
+const base64: typeof btoa =
+  typeof btoa === 'undefined'
+    ? /* istanbul ignore next */ x => Buffer.from(x).toString('base64')
+    : btoa;
 const escape = (x: string) => base64(encodeURIComponent(x)).replace(/=+$/, '');
 
 // eslint-disable-next-line complexity
@@ -70,6 +70,7 @@ function Select(props: SelectFieldProps) {
       legend,
       name,
       onChange,
+      readOnly,
       transform,
     } = props;
 
@@ -91,7 +92,9 @@ function Select(props: SelectFieldProps) {
         <RadioGroup
           id={id}
           name={name}
-          onChange={event => disabled || onChange(event.target.value)}
+          onChange={event =>
+            disabled || readOnly || onChange(event.target.value)
+          }
           ref={inputRef}
           value={value ?? ''}
         >
@@ -116,7 +119,9 @@ function Select(props: SelectFieldProps) {
                   checked={value.includes(item)}
                   id={`${id}-${escape(item)}`}
                   name={name}
-                  onChange={() => disabled || onChange(xor([item], value))}
+                  onChange={() =>
+                    disabled || readOnly || onChange(xor([item], value))
+                  }
                   ref={inputRef}
                   value={name}
                   {...filteredProps}
@@ -157,6 +162,7 @@ function Select(props: SelectFieldProps) {
     native,
     onChange,
     placeholder,
+    readOnly,
     required,
     showInlineError,
     transform,
@@ -192,6 +198,7 @@ function Select(props: SelectFieldProps) {
       margin={margin}
       onChange={event =>
         disabled ||
+        readOnly ||
         onChange(event.target.value !== '' ? event.target.value : undefined)
       }
       required={required}
@@ -222,4 +229,4 @@ function Select(props: SelectFieldProps) {
   );
 }
 
-export default connectField(Select, { kind: 'leaf' });
+export default connectField<SelectFieldProps>(Select, { kind: 'leaf' });

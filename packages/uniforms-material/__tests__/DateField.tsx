@@ -43,6 +43,13 @@ test('<DateField> - renders an Input with correct disabled state', () => {
   expect(wrapper.find(FormControl).prop('disabled')).toBe(true);
 });
 
+test('<DateField> - renders an Input with correct readOnly state', () => {
+  const element = <DateField name="x" inputProps={{ readOnly: true }} />;
+  const wrapper = mount(element, createContext({ x: { type: Date } }));
+
+  expect(wrapper.find(Input).prop('inputProps')!.readOnly).toBe(true);
+});
+
 test('<DateField> - renders a Input with correct label (specified)', () => {
   const element = <DateField name="x" label="DateFieldLabel" />;
   const wrapper = mount(element, createContext({ x: { type: Date } }));
@@ -90,7 +97,7 @@ test('<DateField> - renders a Input which correctly reacts on change', () => {
     createContext({ x: { type: Date } }, { onChange }),
   );
 
-  // @ts-ignore Provide a valid EventTarget.
+  // @ts-expect-error Provide a valid EventTarget.
   wrapper.find(Input).props().onChange!({ target: { valueAsNumber: now } });
   expect(onChange).toHaveBeenLastCalledWith('x', now);
 });
@@ -105,7 +112,7 @@ test('<DateField> - renders a Input which correctly reacts on change (empty)', (
   );
 
   wrapper.find(Input).props().onChange!({
-    // @ts-ignore Provide a valid EventTarget.
+    // @ts-expect-error Provide a valid EventTarget.
     target: { valueAsNumber: undefined },
   });
   expect(onChange).toHaveBeenLastCalledWith('x', undefined);
@@ -121,7 +128,7 @@ test('<DateField> - renders a Input which correctly reacts on change (overflow)'
     createContext({ x: { type: Date } }, { onChange }),
   );
 
-  // @ts-ignore Provide a valid EventTarget.
+  // @ts-expect-error Provide a valid EventTarget.
   wrapper.find(Input).props().onChange!({ target: { valueAsNumber: now } });
   expect(onChange).not.toHaveBeenCalled();
 });

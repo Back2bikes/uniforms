@@ -16,7 +16,7 @@ export type ListFieldProps = HTMLFieldProps<
   {
     addIcon?: ReactNode;
     initialCount?: number;
-    itemProps?: {};
+    itemProps?: object;
     removeIcon?: ReactNode;
   }
 >;
@@ -78,4 +78,4 @@ function List({
   );
 }
 
-export default connectField(List);
+export default connectField<ListFieldProps>(List);

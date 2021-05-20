@@ -1,5 +1,5 @@
 import TextField, { StandardTextFieldProps } from '@material-ui/core/TextField';
-import React, { ReactNode } from 'react';
+import React from 'react';
 import { FieldProps, connectField, filterDOMProps } from 'uniforms';
 
 export type LongTextFieldProps = FieldProps<string, StandardTextFieldProps>;
@@ -14,6 +14,7 @@ const LongText = ({
   name,
   onChange,
   placeholder,
+  readOnly,
   showInlineError,
   type = 'text',
   value,
@@ -24,6 +25,7 @@ const LongText = ({
     error={!!error}
     fullWidth
     helperText={(error && showInlineError && errorMessage) || helperText}
+    inputProps={{ readOnly }}
     label={label}
     margin="dense"
     multiline
@@ -37,4 +39,4 @@ const LongText = ({
   />
 );
 
-export default connectField(LongText, { kind: 'leaf' });
+export default connectField<LongTextFieldProps>(LongText, { kind: 'leaf' });

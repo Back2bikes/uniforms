@@ -2,6 +2,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 import RadioMaterial, { RadioProps } from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
+import omit from 'lodash/omit';
 import React from 'react';
 import { FieldProps, connectField, filterDOMProps } from 'uniforms';
 
@@ -17,13 +18,12 @@ export type RadioFieldProps = FieldProps<
     helperText?: string;
     margin?: any;
     row?: boolean;
-    transform?(value: string): string;
+    transform?: (value: string) => string;
   }
 >;
 
 function Radio({
   allowedValues,
-  checkboxes,
   disabled,
   fullWidth = true,
   id,
@@ -32,6 +32,7 @@ function Radio({
   margin = 'dense',
   name,
   onChange,
+  readOnly,
   row,
   transform,
   value,
@@ -47,14 +48,20 @@ function Radio({
     <RadioGroup
       id={id}
       name={name}
-      onChange={(event: any) => disabled || onChange(event.target.value)}
+      onChange={(event: any) =>
+        disabled || readOnly || onChange(event.target.value)
+      }
       ref={inputRef}
       row={row}
       value={value ?? ''}
     >
       {allowedValues?.map(item => (
         <FormControlLabel
-          control={<RadioMaterial {...filterDOMProps(props)} />}
+          control={
+            <RadioMaterial
+              {...omit(filterDOMProps(props), ['checkboxes', 'helperText'])}
+            />
+          }
           key={item}
           label={transform ? transform(item) : item}
           value={`${item}`}
@@ -64,4 +71,4 @@ function Radio({
   );
 }
 
-export default connectField(Radio, { kind: 'leaf' });
+export default connectField<RadioFieldProps>(Radio, { kind: 'leaf' });

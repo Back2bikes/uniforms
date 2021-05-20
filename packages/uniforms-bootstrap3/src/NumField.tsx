@@ -1,5 +1,4 @@
 import classnames from 'classnames';
-import omit from 'lodash/omit';
 import React, { Ref } from 'react';
 import { connectField, HTMLFieldProps } from 'uniforms';
 
@@ -33,6 +32,7 @@ function Num(props: NumFieldProps) {
         props.onChange(isNaN(value) ? undefined : value);
       }}
       placeholder={props.placeholder}
+      readOnly={props.readOnly}
       ref={props.inputRef}
       step={props.step || (props.decimal ? 0.01 : 1)}
       type="number"
@@ -41,4 +41,4 @@ function Num(props: NumFieldProps) {
   );
 }
 
-export default connectField(Num, { kind: 'leaf' });
+export default connectField<NumFieldProps>(Num, { kind: 'leaf' });

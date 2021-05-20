@@ -20,7 +20,6 @@ function Nest({
   grouped,
   itemProps,
   label,
-  name,
   showInlineError,
   ...props
 }: NestFieldProps) {
@@ -40,7 +39,7 @@ function Nest({
       )}
 
       {children ||
-        fields?.map(field => (
+        fields.map(field => (
           <AutoField key={field} name={field} {...itemProps} />
         ))}
     </div>
@@ -49,4 +48,4 @@ function Nest({
 
 Nest.defaultProps = { grouped: true };
 
-export default connectField(Nest);
+export default connectField<NestFieldProps>(Nest);

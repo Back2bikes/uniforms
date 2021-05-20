@@ -18,7 +18,6 @@ const Nest = ({
   fields,
   itemProps,
   label,
-  name,
   showInlineError,
   ...props
 }: NestFieldProps) => (
@@ -33,10 +32,10 @@ const Nest = ({
     )}
 
     {children ||
-      fields?.map(field => (
+      fields.map(field => (
         <AutoField key={field} name={field} {...itemProps} />
       ))}
   </div>
 );
 
-export default connectField(Nest);
+export default connectField<NestFieldProps>(Nest);

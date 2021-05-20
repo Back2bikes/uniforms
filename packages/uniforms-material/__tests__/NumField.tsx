@@ -20,6 +20,14 @@ test('<NumField> - renders a TextField with correct disabled state', () => {
   expect(wrapper.find(TextField).prop('disabled')).toBe(true);
 });
 
+test('<NumField> - renders a TextField with correct readOnly state', () => {
+  const element = <NumField name="x" inputProps={{ readOnly: true }} />;
+  const wrapper = mount(element, createContext({ x: { type: Number } }));
+
+  expect(wrapper.find(TextField)).toHaveLength(1);
+  expect(wrapper.find(TextField).prop('inputProps')!.readOnly).toBe(true);
+});
+
 test('<NumField> - renders a TextField with correct id (inherited)', () => {
   const element = <NumField name="x" />;
   const wrapper = mount(element, createContext({ x: { type: Number } }));
@@ -82,6 +90,14 @@ test('<NumField> - renders a TextField with correct step (integer)', () => {
 
   expect(wrapper.find(TextField)).toHaveLength(1);
   expect(wrapper.find('input').prop('step')).toBe(1);
+});
+
+test('<NumField> - renders a TextField with correct step (set)', () => {
+  const element = <NumField name="x" decimal={false} step={3} />;
+  const wrapper = mount(element, createContext({ x: { type: Number } }));
+
+  expect(wrapper.find(TextField)).toHaveLength(1);
+  expect(wrapper.find('input').prop('step')).toBe(3);
 });
 
 test('<NumField> - renders a TextField with correct type', () => {
@@ -160,7 +176,7 @@ test('<NumField> - renders a TextField which correctly reacts on change', () => 
   );
 
   expect(wrapper.find(TextField)).toHaveLength(1);
-  // @ts-ignore Provide a valid EventTarget.
+  // @ts-expect-error Provide a valid EventTarget.
   wrapper.find(TextField).props().onChange!({ target: { value: '1' } });
   expect(onChange).toHaveBeenLastCalledWith('x', 1);
 });
@@ -175,7 +191,7 @@ test('<NumField> - renders a TextField which correctly reacts on change (decimal
   );
 
   expect(wrapper.find(TextField)).toHaveLength(1);
-  // @ts-ignore Provide a valid EventTarget.
+  // @ts-expect-error Provide a valid EventTarget.
   wrapper.find(TextField).props().onChange!({ target: { value: '2.5' } });
   expect(onChange).toHaveBeenLastCalledWith('x', 2.5);
 });
@@ -190,7 +206,7 @@ test('<NumField> - renders a TextField which correctly reacts on change (decimal
   );
 
   expect(wrapper.find(TextField)).toHaveLength(1);
-  // @ts-ignore Provide a valid EventTarget.
+  // @ts-expect-error Provide a valid EventTarget.
   wrapper.find(TextField).props().onChange!({ target: { value: '2.5' } });
   expect(onChange).toHaveBeenLastCalledWith('x', 2);
 });
@@ -205,7 +221,7 @@ test('<NumField> - renders a TextField which correctly reacts on change (empty)'
   );
 
   expect(wrapper.find(TextField)).toHaveLength(1);
-  // @ts-ignore Provide a valid EventTarget.
+  // @ts-expect-error Provide a valid EventTarget.
   wrapper.find(TextField).props().onChange!({ target: { value: '' } });
   expect(onChange).toHaveBeenLastCalledWith('x', undefined);
 });
@@ -220,7 +236,7 @@ test('<NumField> - renders a TextField which correctly reacts on change (same va
   );
 
   expect(wrapper.find(TextField)).toHaveLength(1);
-  // @ts-ignore Provide a valid EventTarget.
+  // @ts-expect-error Provide a valid EventTarget.
   wrapper.find(TextField).props().onChange!({ target: { value: '1' } });
   expect(onChange).toHaveBeenLastCalledWith('x', 1);
 });
@@ -235,7 +251,7 @@ test('<NumField> - renders a TextField which correctly reacts on change (zero)',
   );
 
   expect(wrapper.find(TextField)).toHaveLength(1);
-  // @ts-ignore Provide a valid EventTarget.
+  // @ts-expect-error Provide a valid EventTarget.
   wrapper.find(TextField).props().onChange!({ target: { value: '0' } });
   expect(onChange).toHaveBeenLastCalledWith('x', 0);
 });

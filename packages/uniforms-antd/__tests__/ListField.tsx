@@ -1,18 +1,26 @@
+import { screen } from '@testing-library/react';
 import Tooltip from 'antd/lib/tooltip';
 import React from 'react';
 import { ListAddField, ListField, ListItemField } from 'uniforms-antd';
+import { runListFieldTests } from 'uniforms/__suites__/ListField';
 
 import createContext from './_createContext';
 import mount from './_mount';
 
-test('<ListField> - works', () => {
-  const element = <ListField name="x" />;
-  const wrapper = mount(
-    element,
-    createContext({ x: { type: Array }, 'x.$': { type: String } }),
-  );
+describe('@RTL - ListField tests', () => {
+  runListFieldTests(ListField, {
+    addFieldLocator: () => screen.queryAllByRole('img').pop(),
+  });
 
-  expect(wrapper.find(ListField)).toHaveLength(1);
+  test('<ListField> - works', () => {
+    const element = <ListField name="x" />;
+    const wrapper = mount(
+      element,
+      createContext({ x: { type: Array }, 'x.$': { type: String } }),
+    );
+
+    expect(wrapper.find(ListField)).toHaveLength(1);
+  });
 });
 
 test('<ListField> - renders ListAddField', () => {
@@ -129,4 +137,56 @@ test('<ListField> - renders correct error text (specified)', () => {
   );
 
   expect(wrapper.find('div > div').at(0).text()).toBe('Error');
+});
+
+test('<ListField> - renders correct error style', () => {
+  const error = new Error();
+  const element = <ListField name="x" error={error} />;
+  const wrapper = mount(
+    element,
+    createContext({ x: { type: Array }, 'x.$': { type: String } }),
+  );
+
+  expect(wrapper.find('div').at(0).prop('style')).toHaveProperty(
+    'borderColor',
+    'rgb(255, 85, 0)',
+  );
+});
+
+test('<ListField> - renders correct error style (with specified style prop)', () => {
+  const error = new Error();
+  const element = (
+    <ListField name="x" error={error} style={{ marginLeft: '8px' }} />
+  );
+  const wrapper = mount(
+    element,
+    createContext({ x: { type: Array }, 'x.$': { type: String } }),
+  );
+
+  expect(wrapper.find('div').at(0).prop('style')).toHaveProperty(
+    'marginLeft',
+    '8px',
+  );
+});
+
+test('<ListField> - renders proper number of optional values after add new value (with initialCount)', () => {
+  const element = (
+    <ListField name="x" initialCount={3} label="ListFieldLabel" />
+  );
+  const onChange = jest.fn();
+  const wrapper = mount(
+    element,
+    createContext(
+      { x: { type: Array, optional: true }, 'x.$': { type: String } },
+      { onChange },
+    ),
+  );
+
+  expect(wrapper.find(ListAddField).simulate('click')).toBeTruthy();
+  expect(onChange).toHaveBeenNthCalledWith(1, 'x', [
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+  ]);
 });

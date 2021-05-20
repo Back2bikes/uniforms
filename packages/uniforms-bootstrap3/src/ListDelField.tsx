@@ -15,9 +15,10 @@ export type ListDelFieldProps = HTMLFieldProps<
 >;
 
 function ListDel({
-  name,
   className,
   disabled,
+  name,
+  readOnly,
   removeIcon,
   ...props
 }: ListDelFieldProps) {
@@ -32,17 +33,30 @@ function ListDel({
   const limitNotReached =
     !disabled && !(parent.minCount! >= parent.value!.length);
 
+  function onAction(
+    event:
+      | React.KeyboardEvent<HTMLSpanElement>
+      | React.MouseEvent<HTMLSpanElement, MouseEvent>,
+  ) {
+    if (
+      limitNotReached &&
+      !readOnly &&
+      (!('key' in event) || event.key === 'Enter')
+    ) {
+      const value = parent.value!.slice();
+      value.splice(nameIndex, 1);
+      parent.onChange(value);
+    }
+  }
+
   return (
     <span
       {...filterDOMProps(props)}
       className={classnames('badge', className)}
-      onClick={() => {
-        if (limitNotReached) {
-          const value = parent.value!.slice();
-          value.splice(nameIndex, 1);
-          parent.onChange(value);
-        }
-      }}
+      onClick={onAction}
+      onKeyDown={onAction}
+      role="button"
+      tabIndex={0}
     >
       {removeIcon}
     </span>
@@ -53,4 +67,7 @@ ListDel.defaultProps = {
   removeIcon: <i className="glyphicon glyphicon-minus" />,
 };
 
-export default connectField(ListDel, { initialValue: false, kind: 'leaf' });
+export default connectField<ListDelFieldProps>(ListDel, {
+  initialValue: false,
+  kind: 'leaf',
+});

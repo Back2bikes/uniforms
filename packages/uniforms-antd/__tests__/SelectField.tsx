@@ -27,6 +27,24 @@ test('<SelectField> - renders a select with correct disabled state', () => {
   expect(wrapper.find(Select).prop('disabled')).toBe(true);
 });
 
+test('<SelectField> - renders a select with correct readOnly state', () => {
+  const onChange = jest.fn();
+
+  const element = <SelectField name="x" readOnly />;
+  const wrapper = mount(
+    element,
+    createContext(
+      { x: { type: String, allowedValues: ['a', 'b'] } },
+      { onChange },
+    ),
+  );
+
+  expect(wrapper.find(Select)).toHaveLength(1);
+  // FIXME: Provide a valid option.
+  expect(wrapper.find(Select).prop('onChange')!('b', null as any)).toBeFalsy();
+  expect(onChange).not.toHaveBeenCalled();
+});
+
 test('<SelectField> - renders a select with correct id (inherited)', () => {
   const element = <SelectField name="x" />;
   const wrapper = mount(
@@ -61,8 +79,7 @@ test('<SelectField> - renders a select with correct name', () => {
 });
 
 test('<SelectField> - renders a select with correct options', () => {
-  // @ts-ignore Is open a valid prop?
-  const element = <SelectField name="x" open />;
+  const element = <SelectField name="x" />;
   const wrapper = mount(
     element,
     createContext({ x: { type: String, allowedValues: ['a', 'b'] } }),
@@ -70,20 +87,19 @@ test('<SelectField> - renders a select with correct options', () => {
 
   expect(wrapper.find(Select)).toHaveLength(1);
   expect(wrapper.find(Select).prop('children')).toHaveLength(2);
-  // @ts-ignore Check children type.
+  // @ts-expect-error Check children type.
   expect(wrapper.find(Select).prop('children')[0].props.value).toBe('a');
-  // @ts-ignore Check children type.
+  // @ts-expect-error Check children type.
   expect(wrapper.find(Select).prop('children')[0].props.children).toBe('a');
-  // @ts-ignore Check children type.
+  // @ts-expect-error Check children type.
   expect(wrapper.find(Select).prop('children')[1].props.value).toBe('b');
-  // @ts-ignore Check children type.
+  // @ts-expect-error Check children type.
   expect(wrapper.find(Select).prop('children')[1].props.children).toBe('b');
 });
 
 test('<SelectField> - renders a select with correct options (transform)', () => {
   const element = (
-    // @ts-ignore Is open a valid prop?
-    <SelectField name="x" open transform={x => x.toUpperCase()} />
+    <SelectField name="x" transform={(x: string) => x.toUpperCase()} />
   );
   const wrapper = mount(
     element,
@@ -92,13 +108,13 @@ test('<SelectField> - renders a select with correct options (transform)', () => 
 
   expect(wrapper.find(Select)).toHaveLength(1);
   expect(wrapper.find(Select).prop('children')).toHaveLength(2);
-  // @ts-ignore Check children type.
+  // @ts-expect-error Check children type.
   expect(wrapper.find(Select).prop('children')[0].props.value).toBe('a');
-  // @ts-ignore Check children type.
+  // @ts-expect-error Check children type.
   expect(wrapper.find(Select).prop('children')[0].props.children).toBe('A');
-  // @ts-ignore Check children type.
+  // @ts-expect-error Check children type.
   expect(wrapper.find(Select).prop('children')[1].props.value).toBe('b');
-  // @ts-ignore Check children type.
+  // @ts-expect-error Check children type.
   expect(wrapper.find(Select).prop('children')[1].props.children).toBe('B');
 });
 
@@ -275,9 +291,11 @@ test('<SelectField> - disabled items (options) based on predicate', () => {
     }),
   );
 
-  expect(wrapper.find(Select).prop('children')).toHaveLength(2);
-  expect(wrapper.find(Select).prop('children')[0].props.disabled).toBe(true);
-  expect(wrapper.find(Select).prop('children')[1].props.disabled).toBe(false);
+  // FIXME: The `children` prop is not indexable on its own.
+  const children: any = wrapper.find(Select).prop('children');
+  expect(children).toHaveLength(2);
+  expect(children[0].props.disabled).toBe(true);
+  expect(children[1].props.disabled).toBe(false);
 });
 
 test('<SelectField checkboxes> - renders a set of checkboxes', () => {
@@ -301,6 +319,23 @@ test('<SelectField checkboxes> - renders a set of checkboxes with correct disabl
 
   expect(wrapper.find(Radio.Group)).toHaveLength(1);
   expect(wrapper.find(Radio.Group).prop('disabled')).toBe(true);
+});
+
+test('<SelectField checkboxes> - renders a set of checkboxes with correct readOnly state', () => {
+  const onChange = jest.fn();
+
+  const element = <SelectField checkboxes name="x" readOnly />;
+  const wrapper = mount(
+    element,
+    createContext(
+      { x: { type: String, allowedValues: ['a', 'b'] } },
+      { onChange },
+    ),
+  );
+
+  expect(wrapper.find('input')).toHaveLength(2);
+  expect(wrapper.find('input').at(1).simulate('change')).toBeTruthy();
+  expect(onChange).not.toHaveBeenCalled();
 });
 
 test('<SelectField checkboxes> - renders a set of checkboxes with correct id (inherited)', () => {

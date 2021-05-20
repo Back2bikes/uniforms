@@ -1,6 +1,5 @@
 import clone from 'lodash/clone';
 import get from 'lodash/get';
-import isFunction from 'lodash/isFunction';
 import omit from 'lodash/omit';
 import setWith from 'lodash/setWith';
 import React, { Component, SyntheticEvent } from 'react';
@@ -24,9 +23,10 @@ export type BaseFormProps<Model> = {
     model: DeepPartial<Model>,
   ) => DeepPartial<Model>;
   noValidate: boolean;
-  onChange?(key: string, value: any): void;
-  onSubmit(model: DeepPartial<Model>): void | Promise<any>;
+  onChange?: (key: string, value: any) => void;
+  onSubmit: (model: DeepPartial<Model>) => void | Promise<any>;
   placeholder?: boolean;
+  readOnly?: boolean;
   schema: Bridge;
   showInlineError?: boolean;
 };
@@ -36,6 +36,7 @@ export type BaseFormState<Model> = {
   changedMap: ChangedMap<Model>;
   resetCount: number;
   submitting: boolean;
+  submitted: boolean;
 };
 
 export class BaseForm<
@@ -57,11 +58,12 @@ export class BaseForm<
   constructor(props: Props) {
     super(props);
 
-    // @ts-ignore: State may be bigger, but it'll be covered by the subclasses.
+    // @ts-expect-error: State may be bigger, but it'll be covered by the subclasses.
     this.state = {
       changed: false,
       changedMap: Object.create(null),
       resetCount: 0,
+      submitted: false,
       submitting: false,
     };
 
@@ -84,10 +86,14 @@ export class BaseForm<
     this.mounted = true;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   componentDidUpdate(prevProps: Props, prevState: State, snapshot: never) {}
 
   componentWillUnmount() {
     this.mounted = false;
+    if (this.delayId) {
+      clearTimeout(this.delayId);
+    }
   }
 
   delayId?: any;
@@ -111,6 +117,7 @@ export class BaseForm<
       state: this.getContextState(),
       submitting: this.state.submitting,
       validating: false,
+      submitted: this.state.submitted,
     };
   }
 
@@ -131,6 +138,7 @@ export class BaseForm<
       disabled: !!this.props.disabled,
       label: !!this.props.label,
       placeholder: !!this.props.placeholder,
+      readOnly: !!this.props.readOnly,
       showInlineError: !!this.props.showInlineError,
     };
   }
@@ -140,10 +148,14 @@ export class BaseForm<
   }
 
   getContextOnChange(): Context<Model>['onChange'] {
+    // It's bound in constructor.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     return this.onChange;
   }
 
   getContextOnSubmit(): Context<Model>['onSubmit'] {
+    // It's bound in constructor.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     return this.onSubmit;
   }
 
@@ -166,12 +178,15 @@ export class BaseForm<
       'onChange',
       'onSubmit',
       'placeholder',
+      'readOnly',
       'schema',
       'showInlineError',
     ]);
 
     return {
       ...props,
+      // It's bound in constructor.
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       onSubmit: this.onSubmit,
       key: `reset-${this.state.resetCount}`,
     };
@@ -226,12 +241,15 @@ export class BaseForm<
       changed: false,
       changedMap: Object.create(null),
       resetCount: state.resetCount + 1,
+      submitted: false,
       submitting: false,
     } as Partial<State>;
   }
 
   onReset() {
-    // @ts-ignore
+    // @ts-expect-error
+    // It's bound in constructor.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     this.setState(this.__reset);
   }
 
@@ -240,6 +258,8 @@ export class BaseForm<
       event.preventDefault();
       event.stopPropagation();
     }
+
+    this.setState(state => (state.submitted ? null : { submitted: true }));
 
     const result = this.props.onSubmit(this.getModel('submit'));
     if (!(result instanceof Promise)) {

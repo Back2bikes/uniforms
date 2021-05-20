@@ -18,6 +18,7 @@ function Text(props: TextFieldProps) {
       name={props.name}
       onChange={event => props.onChange(event.target.value)}
       placeholder={props.placeholder}
+      readOnly={props.readOnly}
       ref={props.inputRef}
       type={props.type ?? 'text'}
       value={props.value ?? ''}
@@ -26,4 +27,4 @@ function Text(props: TextFieldProps) {
   );
 }
 
-export default connectField(Text, { kind: 'leaf' });
+export default connectField<TextFieldProps>(Text, { kind: 'leaf' });

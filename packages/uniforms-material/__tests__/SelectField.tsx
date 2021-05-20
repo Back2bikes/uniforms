@@ -36,7 +36,6 @@ test('<SelectField> - renders a Select with correct disabled state', () => {
 });
 
 test('<SelectField> - renders a Select with correct required state', () => {
-  // @ts-ignore Fix SelectFieldProps.
   const element = <SelectField name="x" required />;
   const wrapper = mount(
     element,
@@ -84,7 +83,6 @@ test('<SelectField> - renders a Select with correct name', () => {
 });
 
 test('<SelectField> - renders a Select with correct options', () => {
-  // @ts-ignore Fix SelectFieldProps.
   const element = <SelectField name="x" native />;
   const wrapper = mount(
     element,
@@ -106,7 +104,6 @@ test('<SelectField> - renders a Select with correct options', () => {
 
 test('<SelectField> - renders a Select with correct options (transform)', () => {
   const element = (
-    // @ts-ignore Fix SelectFieldProps.
     <SelectField name="x" transform={x => x.toUpperCase()} native />
   );
   const wrapper = mount(
@@ -128,7 +125,6 @@ test('<SelectField> - renders a Select with correct options (transform)', () => 
 });
 
 test('<SelectField> - renders a Select with correct placeholder (implicit)', () => {
-  // @ts-ignore Fix SelectFieldProps.
   const element = <SelectField name="x" placeholder="y" native />;
   const wrapper = mount(
     element,
@@ -197,7 +193,7 @@ test('<SelectField> - renders a Select which correctly reacts on change', () => 
   );
 
   expect(wrapper.find(Select)).toHaveLength(1);
-  // @ts-ignore Provide a valid EventTarget.
+  // @ts-expect-error Provide a valid EventTarget.
   wrapper.find(TextField).props().onChange!({ target: { value: 'b' } });
   expect(onChange).toHaveBeenLastCalledWith('x', 'b');
 });
@@ -215,7 +211,7 @@ test('<SelectField> - renders a Select which correctly reacts on change (empty)'
   );
 
   expect(wrapper.find(Select)).toHaveLength(1);
-  // @ts-ignore Provide a valid EventTarget.
+  // @ts-expect-error Provide a valid EventTarget.
   wrapper.find(TextField).props().onChange!({ target: { value: '' } });
   expect(onChange).toHaveBeenLastCalledWith('x', undefined);
 });
@@ -233,7 +229,7 @@ test('<SelectField> - renders a Select which correctly reacts on change (same va
   );
 
   expect(wrapper.find(Select)).toHaveLength(1);
-  // @ts-ignore Provide a valid EventTarget.
+  // @ts-expect-error Provide a valid EventTarget.
   wrapper.find(TextField).props().onChange!({ target: { value: 'b' } });
   expect(onChange).toHaveBeenLastCalledWith('x', 'b');
 });
@@ -312,7 +308,7 @@ test('<SelectField> - disabled items (options) based on predicate', () => {
 
 test('<SelectField> - renders with correct classnames', () => {
   const wrapper = mount(
-    // @ts-ignore Fix SelectFieldProps.
+    // @ts-expect-error Fix SelectFieldProps.
     <SelectField name="x" textFieldProps={{ className: 'select-class' }} />,
     createContext({ x: { type: String, allowedValues: ['a', 'b'] } }),
   );
@@ -320,6 +316,51 @@ test('<SelectField> - renders with correct classnames', () => {
     'className',
     'select-class',
   );
+});
+
+test('<SelectField> - renders a multiselect with correct value (default)', () => {
+  const element = <SelectField name="x" />;
+  const wrapper = mount(
+    element,
+    createContext({
+      x: { type: Array, allowedValues: ['a', 'b'] },
+      'x.$': { type: String },
+    }),
+  );
+
+  expect(wrapper.find(Select)).toHaveLength(1);
+  expect(wrapper.find(Select).prop('value')).toStrictEqual([]);
+});
+
+test('<SelectField> - renders a multiselect with correct value (model)', () => {
+  const element = <SelectField name="x" />;
+  const wrapper = mount(
+    element,
+    createContext(
+      {
+        x: { type: Array, allowedValues: ['a', 'b'] },
+        'x.$': { type: String },
+      },
+      { model: { x: ['b'] } },
+    ),
+  );
+
+  expect(wrapper.find(Select)).toHaveLength(1);
+  expect(wrapper.find(Select).prop('value')).toStrictEqual(['b']);
+});
+
+test('<SelectField> - renders a multiselect with correct value (specified)', () => {
+  const element = <SelectField name="x" value={['b']} />;
+  const wrapper = mount(
+    element,
+    createContext({
+      x: { type: Array, allowedValues: ['a', 'b'] },
+      'x.$': { type: String },
+    }),
+  );
+
+  expect(wrapper.find(Select)).toHaveLength(1);
+  expect(wrapper.find(Select).prop('value')).toStrictEqual(['b']);
 });
 
 test('<SelectField checkboxes> - renders a set of Radio buttons', () => {
@@ -458,7 +499,7 @@ test('<SelectField checkboxes> - renders a set of Radio buttons which correctly 
   );
 
   expect(wrapper.find(Radio)).toHaveLength(2);
-  // @ts-ignore Provide a valid value.
+  // @ts-expect-error Provide a valid value.
   wrapper.find(RadioGroup).props().onChange!({ target: { value: 'b' } });
   expect(onChange).toHaveBeenLastCalledWith('x', 'b');
 });
@@ -504,7 +545,6 @@ test('<SelectField checkboxes> - renders a set of Checkboxes which correctly rea
 
 test('<SelectField checkboxes> - renders a set of Checkboxes with correct labels', () => {
   const onChange = jest.fn();
-  // @ts-ignore Fix SelectFieldProps.
   const element = <SelectField checkboxes name="x" />;
   const wrapper = mount(
     element,
@@ -557,7 +597,7 @@ test('<SelectField checkboxes> - renders a set of Radio buttons which correctly 
 
   expect(wrapper.find(Radio)).toHaveLength(2);
 
-  // @ts-ignore Provide a valid value.
+  // @ts-expect-error Provide a valid value.
   wrapper.find(RadioGroup).props().onChange!({ target: { value: 'a' } });
 
   expect(onChange).toHaveBeenLastCalledWith('x', 'a');

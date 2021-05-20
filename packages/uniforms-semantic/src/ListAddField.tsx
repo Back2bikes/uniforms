@@ -15,17 +15,33 @@ export type ListAddFieldProps = HTMLFieldProps<
   { initialCount?: number }
 >;
 
-function ListAdd({ disabled, name, value, ...props }: ListAddFieldProps) {
+function ListAdd({
+  disabled,
+  initialCount,
+  name,
+  readOnly,
+  value,
+  ...props
+}: ListAddFieldProps) {
   const nameParts = joinName(null, name);
   const parentName = joinName(nameParts.slice(0, -1));
-  const parent = useField<{ maxCount?: number }, unknown[]>(
-    parentName,
-    {},
-    { absoluteName: true },
-  )[0];
+  const parent = useField<
+    { initialCount?: number; maxCount?: number },
+    unknown[]
+  >(parentName, { initialCount }, { absoluteName: true })[0];
 
   const limitNotReached =
     !disabled && !(parent.maxCount! <= parent.value!.length);
+
+  function onAction(event: React.KeyboardEvent | React.MouseEvent) {
+    if (
+      limitNotReached &&
+      !readOnly &&
+      (!('key' in event) || event.key === 'Enter')
+    ) {
+      parent.onChange(parent.value!.concat([cloneDeep(value)]));
+    }
+  }
 
   return (
     <i
@@ -36,13 +52,15 @@ function ListAdd({ disabled, name, value, ...props }: ListAddFieldProps) {
         limitNotReached ? 'link' : 'disabled',
         'fitted add icon',
       )}
-      onClick={() => {
-        if (limitNotReached) {
-          parent.onChange(parent.value!.concat([cloneDeep(value)]));
-        }
-      }}
+      onClick={onAction}
+      onKeyDown={onAction}
+      role="button"
+      tabIndex={0}
     />
   );
 }
 
-export default connectField(ListAdd, { initialValue: false, kind: 'leaf' });
+export default connectField<ListAddFieldProps>(ListAdd, {
+  initialValue: false,
+  kind: 'leaf',
+});

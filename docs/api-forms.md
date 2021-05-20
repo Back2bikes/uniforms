@@ -74,25 +74,25 @@ however, there will be validation checks.
 import { ValidatedForm } from 'uniforms'; // Or from the theme package.
 
 <ValidatedForm
-  onValidate={(model, error, callback) => {
+  onValidate={async (model, error) => {
     // You can either ignore validation error...
     if (omitValidation(model)) {
-      return callback(null);
+      return null;
     }
 
     // ...or any additional validation if an error is already there...
-    if (error) {
-      return callback();
+    if (isSomeSpecialCase(error)) {
+      return MyAPI.checkOtherCondition(model);
     }
 
     // ...or feed it with another error.
-    MyAPI.validate(model, error => callback(error || null));
+    return MyAPI.validate(model);
   }}
   validate="onChangeAfterSubmit"
   validator={{ clean: true }}
   ref={form => {
     // Validate form with the current model.
-    //   Returns a Promise, which rejects with an validation error or
+    //   Returns a Promise, which rejects with a validation error or
     //   resolves without any value. Note, that it resolves/rejects AFTER
     //   the component is rerendered.
     form.validate();
@@ -163,6 +163,7 @@ However, `BaseForm` is not self-managed, so you won't be able to type anything u
 |    `onChange`     |                                              Field change action. It receives two arguments: key and value, where the key is a dot-separated path to the changed field and value is a requested value.                                               |
 |    `onSubmit`     |               Submit action. When the form is submitted manually or by an HTML5 event, then it's called with the current model. **Note:** use `Promise` to return values and errors - synchronous `return` and `throw` are disallowed.               |
 |   `placeholder`   |                                                              Default placeholder prop for all fields. By default it's false - set it to true to enable placeholders for the whole form.                                                              |
+|    `readOnly`     |                                                                   Default `readOnly` prop for all fields. By default it's false - set it to true to make the whole form read-only.                                                                   |
 |     `schema`      |                                                                               Form schema. It's used for form generation in QuickForm and validation in ValidatedForm.                                                                               |
 | `showInlineError` |                               Default `showInlineError` prop for all fields. By default it's false - set it to true to enable inline errors for the whole form. Available in: antd, bootstrap3, bootstrap4, semantic.                                |
 
@@ -204,6 +205,7 @@ import { BaseForm } from 'uniforms'; // Or from the theme package.
   onChange={(key, value) => console.log(key, value)}
   onSubmit={model => db.saveThatReturnsPromiseOrNothing(model)}
   placeholder={false}
+  readOnly={false}
   schema={myFormSchema}
   showInlineError
   ref={form => {
@@ -232,19 +234,19 @@ import { BaseForm } from 'uniforms'; // Or from the theme package.
 `AutoForm` and `ValidatedForm` both accept an `onValidate` prop. It can be used to create an asynchronous validation:
 
 ```js
-const onValidate = (model, error, callback) => {
+const onValidate = async (model, error) => {
   // You can either ignore validation error...
   if (omitValidation(model)) {
-    return callback(null);
+    return null;
   }
 
   // ...or any additional validation if an error is already there...
-  if (error) {
-    return callback();
+  if (isSomeSpecialCase(error)) {
+    return MyAPI.checkOtherCondition(model);
   }
 
   // ...or feed it with another error.
-  MyAPI.validate(model, error => callback(error || null));
+  MyAPI.validate(model);
 };
 
 // Later...

@@ -2,6 +2,7 @@ import TextField, { StandardTextFieldProps } from '@material-ui/core/TextField';
 import React from 'react';
 import { FieldProps, connectField, filterDOMProps } from 'uniforms';
 
+/* istanbul ignore next */
 const DateConstructor = (typeof global === 'object' ? global : window).Date;
 const dateFormat = (value?: Date) => value && value.toISOString().slice(0, -8);
 const dateParse = (timestamp: number, onChange: DateFieldProps['onChange']) => {
@@ -31,6 +32,7 @@ function Date({
   name,
   onChange,
   placeholder,
+  readOnly,
   showInlineError,
   value,
   ...props
@@ -42,7 +44,8 @@ function Date({
       fullWidth
       helperText={(error && showInlineError && errorMessage) || helperText}
       label={label}
-      InputLabelProps={{ ...labelProps, ...InputLabelProps }}
+      InputLabelProps={{ shrink: true, ...labelProps, ...InputLabelProps }}
+      inputProps={{ readOnly }}
       margin="dense"
       name={name}
       onChange={event =>
@@ -58,4 +61,4 @@ function Date({
   );
 }
 
-export default connectField(Date, { kind: 'leaf' });
+export default connectField<DateFieldProps>(Date, { kind: 'leaf' });

@@ -1,5 +1,4 @@
 import classnames from 'classnames';
-import omit from 'lodash/omit';
 import React, { Ref } from 'react';
 import { connectField, HTMLFieldProps } from 'uniforms';
 
@@ -23,10 +22,11 @@ function LongText(props: LongTextFieldProps) {
       name={props.name}
       onChange={event => props.onChange(event.target.value)}
       placeholder={props.placeholder}
+      readOnly={props.readOnly}
       ref={props.inputRef}
       rows={props.rows}
       value={props.value ?? ''}
     />,
   );
 }
-export default connectField(LongText, { kind: 'leaf' });
+export default connectField<LongTextFieldProps>(LongText, { kind: 'leaf' });

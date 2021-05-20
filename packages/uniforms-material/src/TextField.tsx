@@ -14,6 +14,7 @@ function Text({
   name,
   onChange,
   placeholder,
+  readOnly,
   showInlineError,
   type = 'text',
   value = '',
@@ -25,6 +26,7 @@ function Text({
       error={!!error}
       fullWidth
       helperText={(error && showInlineError && errorMessage) || helperText}
+      inputProps={{ readOnly }}
       label={label}
       margin="dense"
       name={name}
@@ -38,4 +40,4 @@ function Text({
   );
 }
 
-export default connectField(Text, { kind: 'leaf' });
+export default connectField<TextFieldProps>(Text, { kind: 'leaf' });

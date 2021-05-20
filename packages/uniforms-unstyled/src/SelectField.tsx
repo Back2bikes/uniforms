@@ -3,7 +3,9 @@ import React, { Ref } from 'react';
 import { HTMLFieldProps, connectField, filterDOMProps } from 'uniforms';
 
 const base64: typeof btoa =
-  typeof btoa !== 'undefined' ? btoa : x => Buffer.from(x).toString('base64');
+  typeof btoa === 'undefined'
+    ? /* istanbul ignore next */ x => Buffer.from(x).toString('base64')
+    : btoa;
 const escape = (x: string) => base64(encodeURIComponent(x)).replace(/=+$/, '');
 
 export type SelectFieldProps = HTMLFieldProps<
@@ -12,9 +14,9 @@ export type SelectFieldProps = HTMLFieldProps<
   {
     allowedValues?: string[];
     checkboxes?: boolean;
-    disableItem?(value: string): boolean;
+    disableItem?: (value: string) => boolean;
     inputRef?: Ref<HTMLSelectElement>;
-    transform?(value: string): string;
+    transform?: (value: string) => string;
   }
 >;
 
@@ -29,16 +31,18 @@ function Select({
   name,
   onChange,
   placeholder,
+  readOnly,
   required,
   disableItem,
   transform,
   value,
   ...props
 }: SelectFieldProps) {
+  const multiple = fieldType === Array;
   return (
     <div {...filterDOMProps(props)}>
       {label && <label htmlFor={id}>{label}</label>}
-      {checkboxes || fieldType === Array ? (
+      {checkboxes ? (
         allowedValues!.map(item => (
           <div key={item}>
             <input
@@ -49,7 +53,9 @@ function Select({
               id={`${id}-${escape(item)}`}
               name={name}
               onChange={() => {
-                onChange(fieldType === Array ? xor([item], value) : item);
+                if (!readOnly) {
+                  onChange(fieldType === Array ? xor([item], value) : item);
+                }
               }}
               type="checkbox"
             />
@@ -63,22 +69,29 @@ function Select({
         <select
           disabled={disabled}
           id={id}
+          multiple={multiple}
           name={name}
           onChange={event => {
-            onChange(
-              event.target.value !== '' ? event.target.value : undefined,
-            );
+            if (!readOnly) {
+              const item = event.target.value;
+              if (multiple) {
+                const clear = event.target.selectedIndex === -1;
+                onChange(clear ? [] : xor([item], value));
+              } else {
+                onChange(item !== '' ? item : undefined);
+              }
+            }
           }}
           ref={inputRef}
           value={value ?? ''}
         >
-          {(!!placeholder || !required || value === undefined) && (
+          {(!!placeholder || !required || value === undefined) && !multiple && (
             <option value="" disabled={required} hidden={required}>
               {placeholder || label}
             </option>
           )}
 
-          {allowedValues!.map(value => (
+          {allowedValues?.map(value => (
             <option disabled={disableItem?.(value)} key={value} value={value}>
               {transform ? transform(value) : value}
             </option>
@@ -89,4 +102,4 @@ function Select({
   );
 }
 
-export default connectField(Select, { kind: 'leaf' });
+export default connectField<SelectFieldProps>(Select, { kind: 'leaf' });

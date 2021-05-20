@@ -1,8 +1,16 @@
+import { screen } from '@testing-library/react';
 import React from 'react';
 import { ListAddField, ListField, ListItemField } from 'uniforms-semantic';
+import { runListFieldTests } from 'uniforms/__suites__/ListField';
 
 import createContext from './_createContext';
 import mount from './_mount';
+
+describe('@RTL - ListField tests', () => {
+  runListFieldTests(ListField, {
+    addFieldLocator: () => screen.getAllByRole('button')[0],
+  });
+});
 
 test('<ListField> - works', () => {
   const element = <ListField name="x" />;
@@ -141,4 +149,25 @@ test('<ListField> - renders correct error text (showInlineError=false)', () => {
   );
 
   expect(wrapper.children().first().text()).not.toBe('Error');
+});
+
+test('<ListField> - renders proper number of optional values after add new value (with initialCount)', () => {
+  const element = (
+    <ListField name="x" initialCount={3} label="ListFieldLabel" />
+  );
+  const onChange = jest.fn();
+  const wrapper = mount(
+    element,
+    createContext(
+      { x: { type: Array, optional: true }, 'x.$': { type: String } },
+      { onChange },
+    ),
+  );
+  expect(wrapper.find(ListAddField).simulate('click')).toBeTruthy();
+  expect(onChange).toHaveBeenNthCalledWith(1, 'x', [
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+  ]);
 });

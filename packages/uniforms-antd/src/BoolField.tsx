@@ -14,8 +14,7 @@ export type BoolFieldProps = FieldProps<
   {
     checkbox?: boolean;
     checkedChildren?: ReactNode;
-    // FIXME: `Switch` is a value and exporting `typeof Switch` type is impossible.
-    inputRef?: Ref<Checkbox | typeof Switch | any>;
+    inputRef?: Ref<typeof Checkbox | typeof Switch | any>;
     unCheckedChildren?: ReactNode;
   }
 >;
@@ -27,6 +26,7 @@ function Bool({
   inputRef,
   name,
   onChange,
+  readOnly,
   unCheckedChildren = <CloseOutlined />,
   value,
   ...props
@@ -39,7 +39,7 @@ function Bool({
       checkedChildren={checkedChildren}
       disabled={disabled}
       name={name}
-      onChange={() => onChange(!value)}
+      onChange={() => (readOnly ? undefined : onChange(!value))}
       ref={inputRef}
       unCheckedChildren={unCheckedChildren}
       {...filterDOMProps(props)}
@@ -47,4 +47,4 @@ function Bool({
   );
 }
 
-export default connectField(Bool, { kind: 'leaf' });
+export default connectField<BoolFieldProps>(Bool, { kind: 'leaf' });

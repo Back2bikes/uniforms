@@ -25,14 +25,16 @@ function Bool({ onChange, ...props }: BoolFieldProps) {
     label,
     labelBefore,
     name,
+    readOnly,
     value,
   } = props;
   return wrapField(
     { ...props, label: labelBefore, value: props.value },
     <div
       className={classnames(inputClassName, 'form-check', 'checkbox', {
-        'text-danger': error,
         'custom-control-inline': inline,
+        'text-danger': error,
+        'text-success': !error && props.changed,
       })}
     >
       <label htmlFor={props.id} className="form-check-label">
@@ -42,7 +44,11 @@ function Bool({ onChange, ...props }: BoolFieldProps) {
           disabled={disabled}
           id={props.id}
           name={name}
-          onChange={() => onChange(!value)}
+          onChange={() => {
+            if (!readOnly) {
+              onChange(!value);
+            }
+          }}
           ref={inputRef}
           type="checkbox"
         />
@@ -53,4 +59,4 @@ function Bool({ onChange, ...props }: BoolFieldProps) {
   );
 }
 
-export default connectField(Bool, { kind: 'leaf' });
+export default connectField<BoolFieldProps>(Bool, { kind: 'leaf' });

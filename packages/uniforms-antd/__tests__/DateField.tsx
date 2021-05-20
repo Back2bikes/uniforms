@@ -55,6 +55,22 @@ test('<DateField> - renders an input with correct disabled state', () => {
   expect(wrapper.find(DatePicker).prop('disabled')).toBe(true);
 });
 
+test('<DateField> - renders an input with correct readOnly state', () => {
+  const onChange = jest.fn();
+
+  const now = moment();
+  const element = <DateField name="x" readOnly />;
+  const wrapper = mount(
+    element,
+    createContext({ x: { type: Date } }, { onChange }),
+  );
+
+  expect(wrapper.find(DatePicker)).toHaveLength(1);
+  // @ts-expect-error
+  expect(wrapper.find(DatePicker).prop('onChange')(now)).toBeFalsy();
+  expect(onChange).not.toHaveBeenCalled();
+});
+
 test('<DateField> - renders a input with correct label (specified)', () => {
   const element = <DateField name="x" label="DateFieldLabel" />;
   const wrapper = mount(element, createContext({ x: { type: Date } }));
@@ -103,7 +119,7 @@ test('<DateField> - renders a input which correctly reacts on change', () => {
   );
 
   expect(wrapper.find(DatePicker)).toHaveLength(1);
-  // @ts-ignore
+  // @ts-expect-error
   expect(wrapper.find(DatePicker).prop('onChange')(now)).toBeFalsy();
   expect(onChange).toHaveBeenLastCalledWith('x', now.toDate());
 });
@@ -118,7 +134,7 @@ test('<DateField> - renders a input which correctly reacts on change (empty)', (
   );
 
   expect(wrapper.find(DatePicker)).toHaveLength(1);
-  // @ts-ignore
+  // @ts-expect-error
   expect(wrapper.find(DatePicker).prop('onChange')(undefined)).toBeFalsy();
   expect(onChange).toHaveBeenLastCalledWith('x', undefined);
 });
